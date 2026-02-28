@@ -8,7 +8,7 @@ import gsheets as gs
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
 
 # [STYLE] CSS 로드 및 테마 전환 로직
-theme_mode = st.sidebar.radio("🌓 테마 설정", ["기기 설정", "라이트", "다크"], horizontal=True)
+theme_mode = st.sidebar.selectbox("🌓 테마 선택", ["시스템 설정", "라이트", "다크"], index=0)
 
 # 테마별 색상 변수 정의
 light_vars = """
@@ -23,10 +23,10 @@ dark_vars = """
     --calendar-day-bg: #1E1E1E; --calendar-empty-bg: #181818;
     --main-brand-color: #7eb8b4; --button-text: #000000;
 """
-dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); }"
+dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); } .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }"
 
 # 선택에 따른 동적 CSS 생성
-if theme_mode == "기기 설정":
+if theme_mode == "시스템 설정":
     dynamic_css = f":root {{ {light_vars} }} @media (prefers-color-scheme: dark) {{ :root {{ {dark_vars} }} {dark_extra_css} }}"
 elif theme_mode == "라이트":
     dynamic_css = f":root {{ {light_vars} }}"
