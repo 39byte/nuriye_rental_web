@@ -13,7 +13,6 @@
     --calendar-header-bg: #fdfdfd;
     --calendar-day-bg: #FFFFFF;
     --calendar-empty-bg: #fdfdfd; /* 라이트모드 빈 공간 (연한 아이보리/그레이) */
-    --button-text: #000000;
 }
 
 /* Global Styles */
@@ -58,6 +57,16 @@ button[kind="primary"],
     padding: 0.6rem 1.2rem !important;
     font-weight: bold !important;
     transition: all 0.2s ease;
+}
+
+/* 버튼 내부 텍스트 색상 강제 지정 */
+.stButton>button p,
+.stButton>button span {
+    color: var(--button-text) !important;
+}
+
+.stButton>button:hover {
+    filter: brightness(0.95);
 }
 
 /* Calendar Engine Styles */
@@ -122,11 +131,11 @@ button[kind="primary"],
 }
 
 .rental-period-box {
-    background: var(--container-bg);
+    background: var(--bg-color); /* 배경색 일치 */
     padding: 25px;
     border-radius: 12px;
     /* border: 1px solid var(--border-color); */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: none; /* 그림자 제거 */
 }
 
 /* Input Fields */
