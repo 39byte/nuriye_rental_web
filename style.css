@@ -1,94 +1,114 @@
-/* [STYLE] 배경 및 글자색 수정 포인트 
-   회장님, 사이트의 전체적인 색감을 여기서 직접 조절하실 수 있습니다! */
+/* [THEME] 다크모드 및 라이트모드 통합 테마 설정 */
 :root {
-    /* 1. 메인 브랜드 컬러 (헤더, 버튼, 포인트 배경색) */
-    --main-brand-color: #B2DFDB; /* Soft Teal: 연한 청록색 */
-    
-    /* 2. 메인 컬러 위의 글자색 (헤더 텍스트, 버튼 내부 텍스트) */
-    --main-brand-text: #000000;  /* 검정색: 가독성을 위해 검정으로 고정 */
-    
-    /* 3. 기타 기본 색상 */
-    --text-black: #000000;
-    --white-bg: #FFFFFF;
-    --border-grey: #cccccc;
+    /* 공통 브랜드 컬러 (Soft Teal) */
+    --main-brand-color: #B2DFDB;
+    --main-brand-glow: rgba(178, 223, 219, 0.3);
 }
 
-/* Global Settings */
-[data-testid="stAppViewContainer"] {
-    background-color: var(--white-bg);
+/* 라이트 모드 변수 */
+.light-theme {
+    --bg-color: #FFFFFF;
+    --text-color: #000000;
+    --sub-text: #444444;
+    --container-bg: #FFFFFF;
+    --input-bg: #FFFFFF;
+    --border-color: #cccccc;
+    --calendar-header-bg: #fdfdfd;
+    --calendar-day-bg: #FFFFFF;
+    --calendar-empty-bg: #fdfdfd;
 }
+
+/* 다크 모드 변수 */
+.dark-theme {
+    --bg-color: #121212;
+    --text-color: #E0E0E0;
+    --sub-text: #AAAAAA;
+    --container-bg: #1E1E1E;
+    --input-bg: #252525;
+    --border-color: #333333;
+    --calendar-header-bg: #252525;
+    --calendar-day-bg: #1E1E1E;
+    --calendar-empty-bg: #181818;
+}
+
+/* Global Styles */
+[data-testid="stAppViewContainer"] {
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease;
+}
+
+/* Typography */
+h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
+    color: var(--text-color) !important;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    transition: color 0.3s ease;
+}
+
+h1, h2, h3 { font-weight: 800 !important; }
+label { font-weight: 600 !important; }
 
 /* Header Bar */
 [data-testid="stHeader"] {
     background-color: var(--main-brand-color) !important;
 }
 
-/* Typography (All Black) */
-h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
-    color: var(--text-black) !important;
-    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-}
-
-h1, h2, h3 { font-weight: 800 !important; }
-label { font-weight: 600 !important; }
-
 /* Buttons Style */
 .stButton>button, 
 div[data-testid="stForm"] button, 
 button[kind="primary"],
-[data-testid="stSidebar"] button,
-.stButton > button[key*="month"],
-.stButton > button[key*="rev"],
-.stButton > button[key*="dn"],
-.stButton > button[key*="ok"] {
+[data-testid="stSidebar"] button {
     background-color: var(--main-brand-color) !important;
-    color: var(--main-brand-text) !important;
+    color: #000000 !important;
     border-radius: 6px !important;
     border: 1px solid rgba(0,0,0,0.1) !important;
     padding: 0.6rem 1.2rem !important;
     font-weight: bold !important;
-    transition: filter 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.stButton>button:hover { filter: brightness(0.95); }
-
-/* Input Fields (White Background, Dark Text) */
+/* Input Fields Visibility Patch */
 div[data-baseweb="input"], 
 div[data-baseweb="select"] > div,
 div[data-baseweb="popover"] > div,
 .stDateInput div {
-    background-color: var(--white-bg) !important;
-    border: 1px solid var(--border-grey) !important;
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
     border-radius: 6px !important;
+    color: var(--text-color) !important;
+}
+
+/* Focus Glow for Dark Mode */
+.dark-theme div[data-baseweb="input"]:focus-within {
+    border-color: var(--main-brand-color) !important;
+    box-shadow: 0 0 8px var(--main-brand-glow) !important;
 }
 
 input, select, textarea, div[role="button"] span {
-    color: var(--text-black) !important;
+    color: var(--text-color) !important;
 }
 
 /* Calendar Engine Styles */
 .calendar-container {
-    background: var(--white-bg);
+    background: var(--container-bg);
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-    border: 1px solid var(--border-grey);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid var(--border-color);
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0;
-    border: 1px solid var(--border-grey);
+    border: 1px solid var(--border-color);
 }
 
 .calendar-header {
     font-weight: 600;
-    background: #fdfdfd;
+    background: var(--calendar-header-bg);
     padding: 12px 0;
-    color: var(--text-black);
+    color: var(--text-color);
     text-align: center;
-    border-bottom: 1px solid var(--border-grey);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .calendar-day {
@@ -96,56 +116,36 @@ input, select, textarea, div[role="button"] span {
     min-height: 95px;
     position: relative;
     font-size: 0.85rem;
-    background: var(--white-bg);
-    border: 0.5px solid #f0f0f0;
-    color: var(--text-black);
+    background: var(--calendar-day-bg);
+    border: 0.5px solid var(--border-color);
+    color: var(--text-color);
 }
 
 .calendar-day.today {
     background-color: var(--main-brand-color) !important;
-    opacity: 0.85;
+    color: #000000 !important;
 }
 
-.calendar-day.today b { border-bottom: 2px solid var(--text-black); }
-
-/* Rental Lines Overlay */
+/* Rental Lines Overlay (Glow Effect) */
 .rental-line {
     height: 8px;
     border-radius: 4px;
     margin-top: 4px;
     cursor: pointer;
-    position: relative;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-.rental-line:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 1000;
-    font-size: 0.75rem;
+.dark-theme .rental-line {
+    border: 1px solid rgba(255,255,255,0.2);
+    filter: saturate(1.2) brightness(1.1); /* 다크모드에서 선명도 강화 */
 }
 
 /* Layout Containers */
-.form-container {
-    background: var(--white-bg);
+.form-container, .rental-period-box {
+    background: var(--container-bg);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.04);
-    border: 1px solid var(--border-grey);
-}
-
-.rental-period-box {
-    background-color: var(--white-bg);
-    border: 1px solid var(--border-grey);
-    padding: 18px;
-    border-radius: 8px;
-    margin: 20px 0;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }

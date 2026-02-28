@@ -7,10 +7,33 @@ import gsheets as gs
 # [PWA/Base Settings] 앱 설정
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
 
-# [STYLE] CSS 로드 (/* [STYLE] 배경 및 글자색 수정 포인트 */ 명시)
+# [STYLE] CSS 로드 및 테마 전환 로직
+# 다크모드 감지 및 설정 (사이드바 최상단)
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = False # 초기값
+
+dark_mode = st.sidebar.toggle("🌙 다크모드 사용", value=st.session_state.dark_mode, key="theme_toggle")
+theme_class = "dark-theme" if dark_mode else "light-theme"
+
+# 테마 적용을 위한 CSS 인젝션
 try:
     with open('style.css', encoding='utf-8') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        css_content = f.read()
+        # [THEME] 전체 앱에 테마 클래스 강제 주입
+        st.markdown(f"""
+            <style>
+                {css_content}
+                /* 동적 테마 전환을 위한 강제 배경색 지정 */
+                [data-testid="stAppViewContainer"] {{
+                    background-color: var(--bg-color) !important;
+                }}
+                [data-testid="stSidebar"] {{
+                    background-color: var(--bg-color) !important;
+                    border-right: 1px solid var(--border-color);
+                }}
+            </style>
+            <div class="{theme_class}">
+        """, unsafe_allow_html=True)
 except Exception: pass
 
 # 설정 및 데이터 로드
@@ -231,3 +254,6 @@ elif page == "🛠️ 집행부 전용 관리":
             new_pw = st.text_input("새 비밀번호", value=ADMIN_PASSWORD)
             if st.button("비밀번호 저장"):
                 if gs.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
+
+# [THEME] 닫는 태그 (테마 레이아웃 마감)
+st.markdown('</div>', unsafe_allow_html=True)
