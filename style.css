@@ -38,6 +38,12 @@
     border-right: 1px solid var(--border-color);
 }
 
+/* 사이드바 닫기 버튼(<<) 아이콘 색상 보정 */
+button[data-testid="stSidebarCollapseButton"] svg {
+    fill: var(--text-color) !important;
+    color: var(--text-color) !important;
+}
+
 /* Typography */
 h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
     color: var(--text-color) !important;

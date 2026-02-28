@@ -255,7 +255,8 @@ elif page == "🛠️ 집행부 전용 관리":
 # [END OF APP]
 st.markdown("""
     <hr style='border: 0.5px solid #eee; margin: 30px 0 15px 0;'>
-    <div style='text-align: center; color: var(--text-color); opacity: 0.6; font-size: 0.8rem;'>
-        제작: 45-1기 암실차장 한지원 - Finance&AI융합학부
+    <div style='text-align: center; color: var(--text-color); opacity: 0.6; font-size: 0.8rem; line-height: 1.6;'>
+        <b>제작</b> | 45-1기 암실차장 한지원 - Finance&AI융합학부<br>
+        <b>동아리방</b> | 경기도 용인시 처인구 모현읍 외대로 81, 학생회관 414호
     </div>
 """, unsafe_allow_html=True)
