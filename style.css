@@ -1,0 +1,151 @@
+/* [STYLE] 배경 및 글자색 수정 포인트 
+   회장님, 사이트의 전체적인 색감을 여기서 직접 조절하실 수 있습니다! */
+:root {
+    /* 1. 메인 브랜드 컬러 (헤더, 버튼, 포인트 배경색) */
+    --main-brand-color: #B2DFDB; /* Soft Teal: 연한 청록색 */
+    
+    /* 2. 메인 컬러 위의 글자색 (헤더 텍스트, 버튼 내부 텍스트) */
+    --main-brand-text: #000000;  /* 검정색: 가독성을 위해 검정으로 고정 */
+    
+    /* 3. 기타 기본 색상 */
+    --text-black: #000000;
+    --white-bg: #FFFFFF;
+    --border-grey: #cccccc;
+}
+
+/* Global Settings */
+[data-testid="stAppViewContainer"] {
+    background-color: var(--white-bg);
+}
+
+/* Header Bar */
+[data-testid="stHeader"] {
+    background-color: var(--main-brand-color) !important;
+}
+
+/* Typography (All Black) */
+h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
+    color: var(--text-black) !important;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+}
+
+h1, h2, h3 { font-weight: 800 !important; }
+label { font-weight: 600 !important; }
+
+/* Buttons Style */
+.stButton>button, 
+div[data-testid="stForm"] button, 
+button[kind="primary"],
+[data-testid="stSidebar"] button,
+.stButton > button[key*="month"],
+.stButton > button[key*="rev"],
+.stButton > button[key*="dn"],
+.stButton > button[key*="ok"] {
+    background-color: var(--main-brand-color) !important;
+    color: var(--main-brand-text) !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    padding: 0.6rem 1.2rem !important;
+    font-weight: bold !important;
+    transition: filter 0.2s ease;
+}
+
+.stButton>button:hover { filter: brightness(0.95); }
+
+/* Input Fields (White Background, Dark Text) */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] > div,
+div[data-baseweb="popover"] > div,
+.stDateInput div {
+    background-color: var(--white-bg) !important;
+    border: 1px solid var(--border-grey) !important;
+    border-radius: 6px !important;
+}
+
+input, select, textarea, div[role="button"] span {
+    color: var(--text-black) !important;
+}
+
+/* Calendar Engine Styles */
+.calendar-container {
+    background: var(--white-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    border: 1px solid var(--border-grey);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    border: 1px solid var(--border-grey);
+}
+
+.calendar-header {
+    font-weight: 600;
+    background: #fdfdfd;
+    padding: 12px 0;
+    color: var(--text-black);
+    text-align: center;
+    border-bottom: 1px solid var(--border-grey);
+}
+
+.calendar-day {
+    padding: 8px;
+    min-height: 95px;
+    position: relative;
+    font-size: 0.85rem;
+    background: var(--white-bg);
+    border: 0.5px solid #f0f0f0;
+    color: var(--text-black);
+}
+
+.calendar-day.today {
+    background-color: var(--main-brand-color) !important;
+    opacity: 0.85;
+}
+
+.calendar-day.today b { border-bottom: 2px solid var(--text-black); }
+
+/* Rental Lines Overlay */
+.rental-line {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.rental-line:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+    font-size: 0.75rem;
+}
+
+/* Layout Containers */
+.form-container {
+    background: var(--white-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+    border: 1px solid var(--border-grey);
+}
+
+.rental-period-box {
+    background-color: var(--white-bg);
+    border: 1px solid var(--border-grey);
+    padding: 18px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
