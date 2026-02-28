@@ -97,12 +97,6 @@ if st.sidebar.button("🔄 데이터 새로고침"):
 
 # --- 1. 부원용 신청/현황 ---
 if page == "📸 대여 신청 및 현황":
-    st.markdown("""
-        <div style="background-color: var(--main-brand-color); padding: 5px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05);">
-            <span style="font-size: 0.75rem; font-weight: 500;">⚠️ 원활한 이용을 위해 다크모드 해제를 권장합니다.</span>
-            <span style="font-size: 0.75rem; font-weight: 500;">제작: 45-1기 암실차장 한지원 - Finance&AI융합학부</span>
-        </div>
-    """, unsafe_allow_html=True)
     st.title("📸 누리예 카메라 대여 시스템")
     if 'vy' not in st.session_state: st.session_state.vy = date.today().year
     if 'vm' not in st.session_state: st.session_state.vm = date.today().month
@@ -259,4 +253,9 @@ elif page == "🛠️ 집행부 전용 관리":
                 if gs.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
 
 # [END OF APP]
-
+st.markdown("""
+    <hr style='border: 0.5px solid #eee; margin: 30px 0 15px 0;'>
+    <div style='text-align: center; color: var(--text-color); opacity: 0.6; font-size: 0.8rem;'>
+        제작: 45-1기 암실차장 한지원 - Finance&AI융합학부
+    </div>
+""", unsafe_allow_html=True)
