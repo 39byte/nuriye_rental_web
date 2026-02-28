@@ -115,11 +115,17 @@ button[kind="primary"],
 }
 
 /* Layout Containers */
-.form-container, .rental-period-box {
+
+.form-container h2, .form-container h3 {
+    margin-top: 0 !important; /* 제목 상단 마진 제거 */
+    padding-top: 0 !important;
+}
+
+.rental-period-box {
     background: var(--container-bg);
     padding: 25px;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
+    /* border: 1px solid var(--border-color); */
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
