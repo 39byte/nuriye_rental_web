@@ -7,13 +7,13 @@
     /* 기본값 (라이트 모드) */
     --bg-color: #FFFFFF;
     --text-color: #000000;
-    --sub-text: #444444;
     --container-bg: #FFFFFF;
     --input-bg: #FFFFFF;
     --border-color: #cccccc;
     --calendar-header-bg: #fdfdfd;
     --calendar-day-bg: #FFFFFF;
-    --calendar-empty-bg: #fdfdfd;
+    --calendar-empty-bg: #fdfdfd; /* 라이트모드 빈 공간 (연한 아이보리/그레이) */
+    --button-text: #000000;
 }
 
 /* Global Styles */
@@ -34,40 +34,18 @@ h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label
     transition: color 0.3s ease;
 }
 
-h1, h2, h3 { font-weight: 800 !important; }
-label { font-weight: 600 !important; }
-
-/* Header Bar */
-[data-testid="stHeader"] {
-    background-color: var(--main-brand-color) !important;
-}
-
 /* Buttons Style */
 .stButton>button, 
 div[data-testid="stForm"] button, 
 button[kind="primary"],
 [data-testid="stSidebar"] button {
     background-color: var(--main-brand-color) !important;
-    color: #000000 !important;
+    color: var(--button-text) !important;
     border-radius: 6px !important;
     border: 1px solid rgba(0,0,0,0.1) !important;
     padding: 0.6rem 1.2rem !important;
     font-weight: bold !important;
-}
-
-/* Input Fields Visibility Patch */
-div[data-baseweb="input"], 
-div[data-baseweb="select"] > div,
-div[data-baseweb="popover"] > div,
-.stDateInput div {
-    background-color: var(--input-bg) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 6px !important;
-    color: var(--text-color) !important;
-}
-
-input, select, textarea, div[role="button"] span {
-    color: var(--text-color) !important;
+    transition: all 0.2s ease;
 }
 
 /* Calendar Engine Styles */
@@ -104,9 +82,15 @@ input, select, textarea, div[role="button"] span {
     color: var(--text-color);
 }
 
+/* 빈 날짜 공간 스타일 */
+.calendar-day.empty {
+    background-color: var(--calendar-empty-bg) !important;
+}
+
 .calendar-day.today {
     background-color: var(--main-brand-color) !important;
     color: #000000 !important;
+    font-weight: bold;
 }
 
 /* Rental Lines Overlay */
@@ -125,4 +109,13 @@ input, select, textarea, div[role="button"] span {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* Input Fields */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] > div,
+.stDateInput div {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
 }

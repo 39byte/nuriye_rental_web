@@ -16,15 +16,17 @@ dark_theme_vars = """
     :root {
         --bg-color: #121212;
         --text-color: #E0E0E0;
-        --sub-text: #AAAAAA;
         --container-bg: #1E1E1E;
         --input-bg: #252525;
         --border-color: #333333;
         --calendar-header-bg: #252525;
         --calendar-day-bg: #1E1E1E;
         --calendar-empty-bg: #181818;
+        --main-brand-color: #7eb8b4; /* 다크모드 전용 딥 민트 버튼 배경색 */
+        --button-text: #000000;      /* 가독성을 위해 버튼 글자는 검정색 유지 또는 명확한 색상 */
     }
     .rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); }
+    .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }
 """ if dark_mode else ""
 
 try:
@@ -54,7 +56,7 @@ def get_calendar_html(rentals, view_year, view_month, is_admin=False):
     
     for week in cal:
         for day in week:
-            if day == 0: html += '<div class="calendar-day" style="background: #fdfdfd;"></div>'
+            if day == 0: html += '<div class="calendar-day empty"></div>'
             else:
                 day_date = date(view_year, view_month, day)
                 is_today = "today" if day_date == today else ""
