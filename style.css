@@ -22,6 +22,18 @@
     transition: background-color 0.3s ease;
 }
 
+/* Header Bar (Full Bleed 포인트) */
+[data-testid="stHeader"] {
+    background-color: var(--main-brand-color) !important;
+    height: 3.5rem !important; /* 바의 높이 고정 */
+}
+
+/* 상단, 좌측, 우측 빈 공간 완벽 제거 */
+.main .block-container {
+    padding-top: 1.5rem !important;
+    max-width: 100% !important;
+}
+
 [data-testid="stSidebar"] {
     background-color: var(--bg-color) !important;
     border-right: 1px solid var(--border-color);
