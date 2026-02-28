@@ -1,19 +1,6 @@
-/* [THEME] 다크모드 및 라이트모드 통합 테마 설정 */
+/* [THEME] 공통 레이아웃 및 폰트 설정 (색상은 app.py에서 동적 주입) */
 :root {
-    /* 공통 브랜드 컬러 (Soft Teal) */
-    --main-brand-color: #B2DFDB;
     --main-brand-glow: rgba(178, 223, 219, 0.3);
-
-    /* 기본값 (라이트 모드) */
-    --bg-color: #FFFFFF;
-    --text-color: #000000;
-    --container-bg: #FFFFFF;
-    --input-bg: #FFFFFF;
-    --border-color: #cccccc;
-    --calendar-header-bg: #fdfdfd;
-    --calendar-day-bg: #FFFFFF;
-    --calendar-empty-bg: #fdfdfd; /* 라이트모드 빈 공간 (연한 아이보리/그레이) */
-    --button-text: #000000;
 }
 
 /* Global Styles */
@@ -34,18 +21,38 @@ h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label
     transition: color 0.3s ease;
 }
 
-/* Buttons Style */
+/* Buttons Style (Force black text for brand buttons) */
 .stButton>button, 
 div[data-testid="stForm"] button, 
 button[kind="primary"],
-[data-testid="stSidebar"] button {
+[data-testid="stSidebar"] button,
+.stButton>button p,
+.stButton>button span {
     background-color: var(--main-brand-color) !important;
     color: var(--button-text) !important;
     border-radius: 6px !important;
     border: 1px solid rgba(0,0,0,0.1) !important;
     padding: 0.6rem 1.2rem !important;
     font-weight: bold !important;
-    transition: all 0.2s ease;
+}
+
+.stButton>button:hover {
+    filter: brightness(0.95);
+    color: var(--button-text) !important;
+}
+
+/* Input Fields Visibility */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] > div,
+.stDateInput div {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    color: var(--text-color) !important;
+}
+
+input, select, textarea, div[role="button"] span {
+    color: var(--text-color) !important;
 }
 
 /* Calendar Engine Styles */
@@ -82,7 +89,6 @@ button[kind="primary"],
     color: var(--text-color);
 }
 
-/* 빈 날짜 공간 스타일 */
 .calendar-day.empty {
     background-color: var(--calendar-empty-bg) !important;
 }
@@ -90,7 +96,6 @@ button[kind="primary"],
 .calendar-day.today {
     background-color: var(--main-brand-color) !important;
     color: #000000 !important;
-    font-weight: bold;
 }
 
 /* Rental Lines Overlay */
@@ -109,13 +114,4 @@ button[kind="primary"],
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-/* Input Fields */
-div[data-baseweb="input"], 
-div[data-baseweb="select"] > div,
-.stDateInput div {
-    background-color: var(--input-bg) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 6px !important;
 }

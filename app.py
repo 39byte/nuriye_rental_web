@@ -8,32 +8,35 @@ import gsheets as gs
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
 
 # [STYLE] CSS 로드 및 테마 전환 로직
-if 'dark_mode' not in st.session_state: st.session_state.dark_mode = False
-dark_mode = st.sidebar.toggle("🌙 다크모드 사용", value=st.session_state.dark_mode, key="theme_toggle")
+theme_mode = st.sidebar.radio("🌓 테마 설정", ["기기 설정", "라이트", "다크"], horizontal=True)
 
-# 다크모드 색상 변수 정의 (기본값은 style.css의 :root 사용)
-dark_theme_vars = """
-    :root {
-        --bg-color: #121212;
-        --text-color: #E0E0E0;
-        --container-bg: #1E1E1E;
-        --input-bg: #252525;
-        --border-color: #333333;
-        --calendar-header-bg: #252525;
-        --calendar-day-bg: #1E1E1E;
-        --calendar-empty-bg: #181818;
-        --main-brand-color: #7eb8b4; /* 다크모드 전용 딥 민트 버튼 배경색 */
-        --button-text: #000000;      /* 가독성을 위해 버튼 글자는 검정색 유지 또는 명확한 색상 */
-    }
-    .rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); }
-    .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }
-""" if dark_mode else ""
+# 테마별 색상 변수 정의
+light_vars = """
+    --bg-color: #FFFFFF; --text-color: #000000; --container-bg: #FFFFFF;
+    --input-bg: #FFFFFF; --border-color: #cccccc; --calendar-header-bg: #fdfdfd;
+    --calendar-day-bg: #FFFFFF; --calendar-empty-bg: #fdfdfd;
+    --main-brand-color: #B2DFDB; --button-text: #000000;
+"""
+dark_vars = """
+    --bg-color: #121212; --text-color: #E0E0E0; --container-bg: #1E1E1E;
+    --input-bg: #252525; --border-color: #333333; --calendar-header-bg: #252525;
+    --calendar-day-bg: #1E1E1E; --calendar-empty-bg: #181818;
+    --main-brand-color: #7eb8b4; --button-text: #000000;
+"""
+dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); }"
+
+# 선택에 따른 동적 CSS 생성
+if theme_mode == "기기 설정":
+    dynamic_css = f":root {{ {light_vars} }} @media (prefers-color-scheme: dark) {{ :root {{ {dark_vars} }} {dark_extra_css} }}"
+elif theme_mode == "라이트":
+    dynamic_css = f":root {{ {light_vars} }}"
+else: # 다크
+    dynamic_css = f":root {{ {dark_vars} }} {dark_extra_css}"
 
 try:
     with open('style.css', encoding='utf-8') as f:
         css_content = f.read()
-        # [THEME] 화면에 텍스트가 남지 않도록 순수 style 태그만 주입
-        st.markdown(f"<style>{css_content}{dark_theme_vars}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>{css_content}{dynamic_css}</style>", unsafe_allow_html=True)
 except Exception: pass
 
 # 설정 및 데이터 로드
