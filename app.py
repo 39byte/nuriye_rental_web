@@ -8,32 +8,30 @@ import gsheets as gs
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
 
 # [STYLE] CSS 로드 및 테마 전환 로직
-# 다크모드 감지 및 설정 (사이드바 최상단)
-if 'dark_mode' not in st.session_state:
-    st.session_state.dark_mode = False # 초기값
-
+if 'dark_mode' not in st.session_state: st.session_state.dark_mode = False
 dark_mode = st.sidebar.toggle("🌙 다크모드 사용", value=st.session_state.dark_mode, key="theme_toggle")
-theme_class = "dark-theme" if dark_mode else "light-theme"
 
-# 테마 적용을 위한 CSS 인젝션
+# 다크모드 색상 변수 정의 (기본값은 style.css의 :root 사용)
+dark_theme_vars = """
+    :root {
+        --bg-color: #121212;
+        --text-color: #E0E0E0;
+        --sub-text: #AAAAAA;
+        --container-bg: #1E1E1E;
+        --input-bg: #252525;
+        --border-color: #333333;
+        --calendar-header-bg: #252525;
+        --calendar-day-bg: #1E1E1E;
+        --calendar-empty-bg: #181818;
+    }
+    .rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); }
+""" if dark_mode else ""
+
 try:
     with open('style.css', encoding='utf-8') as f:
         css_content = f.read()
-        # [THEME] 전체 앱에 테마 클래스 강제 주입
-        st.markdown(f"""
-            <style>
-                {css_content}
-                /* 동적 테마 전환을 위한 강제 배경색 지정 */
-                [data-testid="stAppViewContainer"] {{
-                    background-color: var(--bg-color) !important;
-                }}
-                [data-testid="stSidebar"] {{
-                    background-color: var(--bg-color) !important;
-                    border-right: 1px solid var(--border-color);
-                }}
-            </style>
-            <div class="{theme_class}">
-        """, unsafe_allow_html=True)
+        # [THEME] 화면에 텍스트가 남지 않도록 순수 style 태그만 주입
+        st.markdown(f"<style>{css_content}{dark_theme_vars}</style>", unsafe_allow_html=True)
 except Exception: pass
 
 # 설정 및 데이터 로드
@@ -255,5 +253,5 @@ elif page == "🛠️ 집행부 전용 관리":
             if st.button("비밀번호 저장"):
                 if gs.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
 
-# [THEME] 닫는 태그 (테마 레이아웃 마감)
-st.markdown('</div>', unsafe_allow_html=True)
+# [END OF APP]
+
