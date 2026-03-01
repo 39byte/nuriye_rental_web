@@ -161,12 +161,12 @@ if page == "📸 대여 신청 및 현황":
             accs = [a for a, c in zip(["SD카드", "리더기", "가방"], [a1.checkbox("SD카드"), a2.checkbox("리더기"), a3.checkbox("가방")]) if c]
 
             st.markdown('<div class="rental-period-box">', unsafe_allow_html=True)
-            name = st.text_input("신청자 성함", placeholder="실명을 입력해 주세요")
+            name = st.text_input("이름", placeholder="이름을 입력해 주세요")
             contact = st.text_input("연락처", placeholder="010-XXXX-XXXX")
             p1, p2 = st.columns(2)
             start = p1.date_input("대여예정일", min_value=date.today())
             end = p2.date_input("반납예정일", min_value=start, max_value=start + timedelta(days=7))
-            meet = st.text_input("대여/반납 가능 시간", placeholder="대여: N~M시 / 반납: N~M시")
+            meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관)", placeholder="N~M시 / N~M시")
             st.markdown('</div>', unsafe_allow_html=True)
 
             # [VALIDATION] 신청서 제출 검증 로직
@@ -257,6 +257,6 @@ st.markdown("""
     <hr style='border: 0.5px solid #eee; margin: 30px 0 15px 0;'>
     <div style='text-align: center; color: var(--text-color); opacity: 0.6; font-size: 0.8rem; line-height: 1.6;'>
         <b>제작</b> | 45-1기 암실차장 한지원 - Finance&AI융합학부<br>
-        <b>동아리방</b> | 경기도 용인시 처인구 모현읍 외대로 81, 학생회관 414호
+        <b>위치</b> | 경기도 용인시 처인구 모현읍 외대로 81, 학생회관 414호
     </div>
 """, unsafe_allow_html=True)
