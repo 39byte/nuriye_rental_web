@@ -166,7 +166,7 @@ if page == "📸 대여 신청 및 현황":
             p1, p2 = st.columns(2)
             start = p1.date_input("대여예정일", min_value=date.today())
             end = p2.date_input("반납예정일", min_value=start, max_value=start + timedelta(days=7))
-            meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관)", placeholder="N~M시 / N~M시")
+            meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관 414호)", placeholder="N~M시 / N~M시")
             st.markdown('</div>', unsafe_allow_html=True)
 
             # [VALIDATION] 신청서 제출 검증 로직
