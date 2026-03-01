@@ -207,7 +207,7 @@ elif page == "🛠️ 집행부 전용 관리":
     st.title("🛠️ 집행부 관리 대시보드")
     if "auth" not in st.session_state: st.session_state.auth = False
     if not st.session_state.auth:
-        pwd = st.text_input("집행부 인증번호(PW)", type="password")
+        pwd = st.text_input("집행부 인증번호(PW)", type="password", placeholder="비밀번호를 입력해 주세요")
         if st.button("로그인"):
             if pwd == ADMIN_PASSWORD: st.session_state.auth = True; st.rerun()
             else: st.error("비밀번호 오류")
