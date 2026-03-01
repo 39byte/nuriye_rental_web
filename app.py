@@ -17,8 +17,8 @@ THEMES = {
         "cal_h": "#fdfdfd", "cal_d": "#FFFFFF", "cal_e": "#fdfdfd", "brand": "#B2DFDB", "btn_t": "#FFFFFF"
     },
     "dark": {
-        "bg": "#121212", "text": "#E0E0E0", "cont": "#1E1E1E", "input": "#252525", "brd": "#333333",
-        "cal_h": "#252525", "cal_d": "#1E1E1E", "cal_e": "#181818", "brand": "#5a9490", "btn_t": "#000000"
+        "bg": "#252526", "text": "#E0E0E0", "cont": "#2D2D2D", "input": "#3C3C3C", "brd": "#454545",
+        "cal_h": "#333333", "cal_d": "#2D2D2D", "cal_e": "#252526", "brand": "#004246", "btn_t": "#FFFFFF"
     }
 }
 
