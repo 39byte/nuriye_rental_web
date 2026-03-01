@@ -1,48 +1,25 @@
-/* [THEME] 다크모드 및 라이트모드 통합 테마 설정 */
+/* [THEME] 동적 색상 제어를 위한 기반 스타일 */
 :root {
-    /* 공통 브랜드 컬러 (Soft Teal) */
-    --main-brand-color: #B2DFDB;
     --main-brand-glow: rgba(178, 223, 219, 0.3);
-
-    /* 기본값 (라이트 모드) */
-    --bg-color: #FFFFFF;
-    --text-color: #000000;
-    --container-bg: #FFFFFF;
-    --input-bg: #FFFFFF;
-    --border-color: #cccccc;
-    --calendar-header-bg: #fdfdfd;
-    --calendar-day-bg: #FFFFFF;
-    --calendar-empty-bg: #fdfdfd; /* 라이트모드 빈 공간 (연한 아이보리/그레이) */
 }
 
-/* Global Styles */
-[data-testid="stAppViewContainer"] {
+/* Global Layout & Settings */
+[data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
     background-color: var(--bg-color) !important;
     transition: background-color 0.3s ease;
 }
 
-/* Header Bar (Full Bleed 포인트) */
 [data-testid="stHeader"] {
     background-color: var(--main-brand-color) !important;
-    height: 3.5rem !important; /* 바의 높이 고정 */
+    height: 3.5rem !important;
 }
 
-/* 상단, 좌측, 우측 빈 공간 완벽 제거 */
 .main .block-container {
     padding-top: 1.5rem !important;
     max-width: 100% !important;
 }
 
-[data-testid="stSidebar"] {
-    background-color: var(--bg-color) !important;
-    border-right: 1px solid var(--border-color);
-}
-
-/* 사이드바 닫기 버튼(<<) 아이콘 색상 보정 */
-button[data-testid="stSidebarCollapseButton"] svg {
-    fill: var(--text-color) !important;
-    color: var(--text-color) !important;
-}
+[data-testid="stSidebar"] { border-right: 1px solid var(--border-color); }
 
 /* Typography */
 h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
@@ -52,10 +29,7 @@ h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label
 }
 
 /* Buttons Style */
-.stButton>button, 
-div[data-testid="stForm"] button, 
-button[kind="primary"],
-[data-testid="stSidebar"] button {
+.stButton>button, div[data-testid="stForm"] button, button[kind="primary"], [data-testid="stSidebar"] button {
     background-color: var(--main-brand-color) !important;
     color: var(--button-text) !important;
     border-radius: 6px !important;
@@ -65,17 +39,16 @@ button[kind="primary"],
     transition: all 0.2s ease;
 }
 
-/* 버튼 내부 텍스트 색상 강제 지정 */
-.stButton>button p,
-.stButton>button span {
-    color: var(--button-text) !important;
+.stButton>button p, .stButton>button span { color: var(--button-text) !important; }
+.stButton>button:hover { filter: brightness(0.95); }
+
+/* Sidebar Icons */
+button[data-testid="stSidebarCollapseButton"] svg {
+    fill: var(--text-color) !important;
+    color: var(--text-color) !important;
 }
 
-.stButton>button:hover {
-    filter: brightness(0.95);
-}
-
-/* Calendar Engine Styles */
+/* Calendar Engine */
 .calendar-container {
     background: var(--container-bg);
     padding: 20px;
@@ -84,11 +57,7 @@ button[kind="primary"],
     border: 1px solid var(--border-color);
 }
 
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    border: 1px solid var(--border-color);
-}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--border-color); }
 
 .calendar-header {
     font-weight: 600;
@@ -109,18 +78,9 @@ button[kind="primary"],
     color: var(--text-color);
 }
 
-/* 빈 날짜 공간 스타일 */
-.calendar-day.empty {
-    background-color: var(--calendar-empty-bg) !important;
-}
+.calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }
+.calendar-day.today { background-color: var(--main-brand-color) !important; color: #000000 !important; font-weight: bold; }
 
-.calendar-day.today {
-    background-color: var(--main-brand-color) !important;
-    color: #000000 !important;
-    font-weight: bold;
-}
-
-/* Rental Lines Overlay */
 .rental-line {
     height: 8px;
     border-radius: 4px;
@@ -129,26 +89,21 @@ button[kind="primary"],
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Layout Containers */
-
-.form-container h2, .form-container h3 {
-    margin-top: 0 !important; /* 제목 상단 마진 제거 */
-    padding-top: 0 !important;
-}
+/* Form & Layout Containers */
+.form-container h2, .form-container h3 { margin-top: 0 !important; padding-top: 0 !important; }
 
 .rental-period-box {
-    background: var(--bg-color); /* 배경색 일치 */
+    background: var(--bg-color);
     padding: 25px;
-    border-radius: 12px;
-    /* border: 1px solid var(--border-color); */
-    box-shadow: none; /* 그림자 제거 */
+    border: none !important;     /* 테두리 삭제 */
+    box-shadow: none !important; /* 그림자 삭제 */
 }
 
 /* Input Fields */
-div[data-baseweb="input"], 
-div[data-baseweb="select"] > div,
-.stDateInput div {
+div[data-baseweb="input"], div[data-baseweb="select"] > div, .stDateInput div {
     background-color: var(--input-bg) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 6px !important;
 }
+
+input, select, textarea, div[role="button"] span { color: var(--text-color) !important; }
