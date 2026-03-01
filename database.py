@@ -142,14 +142,13 @@ def check_rental_conflict(equipment_name, start_date, end_date):
         return False
 
 def update_inventory_list(df):
-    """재고 목록 전체 업데이트 (주의: 전체 삭제 후 재삽입)"""
+    """재고 목록 전체 업데이트 (Batch Upsert)"""
     try:
         supabase = get_supabase_client()
-        # 기존 데이터 삭제 (PostgreSQL 정책에 따라 다를 수 있음)
-        # 여기서는 단순히 데이터프레임의 각 행을 upsert 하는 방식으로 처리 제안
-        data_list = df.to_dict(orient='records')
-        for item in data_list:
-            supabase.table("Inventory").upsert(item).execute()
+        # 데이터프레임을 리스트 형식으로 변환하여 한 번에 전송
+        data_list = df.replace({pd.NA: None, float('nan'): None}).to_dict(orient='records')
+        if data_list:
+            supabase.table("Inventory").upsert(data_list).execute()
         st.cache_data.clear()
         return True
     except Exception as e:

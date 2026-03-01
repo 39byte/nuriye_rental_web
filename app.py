@@ -10,33 +10,38 @@ st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon=
 # [STYLE] CSS 로드 및 테마 전환 로직
 theme_mode = st.sidebar.selectbox("🌓 테마 선택", ["시스템 설정", "라이트", "다크"], index=0)
 
-# 테마별 색상 변수 정의
-light_vars = """
-    --bg-color: #FFFFFF; --text-color: #000000; --container-bg: #FFFFFF;
-    --input-bg: #FFFFFF; --border-color: #cccccc; --calendar-header-bg: #fdfdfd;
-    --calendar-day-bg: #FFFFFF; --calendar-empty-bg: #fdfdfd;
-    --main-brand-color: #B2DFDB; --button-text: #FFFFFF; /* 라이트모드 버튼 글자색: 흰색 */
-"""
-dark_vars = """
-    --bg-color: #121212; --text-color: #E0E0E0; --container-bg: #1E1E1E;
-    --input-bg: #252525; --border-color: #333333; --calendar-header-bg: #252525;
-    --calendar-day-bg: #1E1E1E; --calendar-empty-bg: #181818;
-    --main-brand-color: #5a9490; --button-text: #000000; /* 다크모드 버튼 글자색: 검정색 */
-"""
-dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); } .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }"
+# 테마별 색상 팔레트 (순수 색상 변수만 관리)
+THEMES = {
+    "light": {
+        "bg": "#FFFFFF", "text": "#000000", "cont": "#FFFFFF", "input": "#FFFFFF", "brd": "#cccccc",
+        "cal_h": "#fdfdfd", "cal_d": "#FFFFFF", "cal_e": "#fdfdfd", "brand": "#B2DFDB", "btn_t": "#FFFFFF"
+    },
+    "dark": {
+        "bg": "#121212", "text": "#E0E0E0", "cont": "#1E1E1E", "input": "#252525", "brd": "#333333",
+        "cal_h": "#252525", "cal_d": "#1E1E1E", "cal_e": "#181818", "brand": "#5a9490", "btn_t": "#000000"
+    }
+}
 
-# 선택에 따른 동적 CSS 생성
+def get_theme_css(base):
+    return f"""
+        --bg-color: {base['bg']}; --text-color: {base['text']}; --container-bg: {base['cont']};
+        --input-bg: {base['input']}; --border-color: {base['brd']}; --calendar-header-bg: {base['cal_h']};
+        --calendar-day-bg: {base['cal_d']}; --calendar-empty-bg: {base['cal_e']};
+        --main-brand-color: {base['brand']}; --button-text: {base['btn_t']};
+    """
+
+dark_extra = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); } .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }"
+
 if theme_mode == "시스템 설정":
-    dynamic_css = f":root {{ {light_vars} }} @media (prefers-color-scheme: dark) {{ :root {{ {dark_vars} }} {dark_extra_css} }}"
+    dynamic_css = f":root {{ {get_theme_css(THEMES['light'])} }} @media (prefers-color-scheme: dark) {{ :root {{ {get_theme_css(THEMES['dark'])} }} {dark_extra} }}"
 elif theme_mode == "라이트":
-    dynamic_css = f":root {{ {light_vars} }}"
-else: # 다크
-    dynamic_css = f":root {{ {dark_vars} }} {dark_extra_css}"
+    dynamic_css = f":root {{ {get_theme_css(THEMES['light'])} }}"
+else:
+    dynamic_css = f":root {{ {get_theme_css(THEMES['dark'])} }} {dark_extra}"
 
 try:
     with open('style.css', encoding='utf-8') as f:
-        css_content = f.read()
-        st.markdown(f"<style>{css_content}{dynamic_css}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>{f.read()}{dynamic_css}</style>", unsafe_allow_html=True)
 except Exception: pass
 
 # 설정 및 데이터 로드 (db 모듈 활용)
@@ -122,7 +127,6 @@ if page == "📸 대여 신청 및 현황":
         st.markdown(get_calendar_html(rentals, st.session_state.vy, st.session_state.vm, is_admin=False), unsafe_allow_html=True)
 
     with col_r:
-        st.markdown('<div class="form-container">', unsafe_allow_html=True)
         st.subheader("📷 스마트 대여 신청")
         
         # [OPTIMIZATION] st.fragment 적용: 양식 내부만 리런되도록 설정
@@ -197,7 +201,6 @@ if page == "📸 대여 신청 및 현황":
 
         # 프래그먼트 함수 실행
         render_rental_form(inventory)
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 2. 집행부용 관리 ---
 elif page == "🛠️ 집행부 전용 관리":
