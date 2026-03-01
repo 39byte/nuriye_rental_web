@@ -5,6 +5,7 @@
 # Allow specific files only
 !app.py
 !gsheets.py
+!database.py
 !requirements.txt
 !style.css
 !.gitignore
