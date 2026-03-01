@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, date, timedelta
 import calendar
-import gsheets as gs
+import database as db # 구글 시트(gs) 대신 데이터베이스(db) 모듈 사용
 
 # [PWA/Base Settings] 앱 설정
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
@@ -39,9 +39,9 @@ try:
         st.markdown(f"<style>{css_content}{dynamic_css}</style>", unsafe_allow_html=True)
 except Exception: pass
 
-# 설정 및 데이터 로드
-settings = gs.get_settings()
-ADMIN_PASSWORD = settings.get("admin_password", "nuriye1234")
+# 설정 및 데이터 로드 (db 모듈 활용)
+settings = db.get_settings()
+ADMIN_PASSWORD = settings.get("admin_password", "1111")
 STAFF_LIST = ["김지원(암실부장)", "유재동(회장)", "한지원(부회장)", "심종율(총무)", "이서윤(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
 
 # --- 유틸리티: 캘린더 엔진 (VS Code 보정 반영) ---
@@ -101,8 +101,8 @@ if page == "📸 대여 신청 및 현황":
     if 'vy' not in st.session_state: st.session_state.vy = date.today().year
     if 'vm' not in st.session_state: st.session_state.vm = date.today().month
 
-    inventory = gs.get_inventory()
-    rentals = gs.get_rentals()
+    inventory = db.get_inventory()
+    rentals = db.get_rentals()
 
     col_l, col_r = st.columns([7, 5], gap="large")
 
@@ -124,8 +124,14 @@ if page == "📸 대여 신청 및 현황":
     with col_r:
         st.markdown('<div class="form-container">', unsafe_allow_html=True)
         st.subheader("📷 스마트 대여 신청")
-        if inventory.empty: st.error("장비 정보를 불러올 수 없습니다.")
-        else:
+        
+        # [OPTIMIZATION] st.fragment 적용: 양식 내부만 리런되도록 설정
+        @st.fragment
+        def render_rental_form(inventory):
+            if inventory.empty: 
+                st.error("장비 정보를 불러올 수 없습니다.")
+                return
+
             # 바디 선택 (Category -> Model)
             b_cats = ["선택하세요"] + inventory[inventory['구분'] == 'Body']['카테고리'].unique().tolist()
             sel_cat = st.selectbox("1. 바디 카테고리 (필요 시)", b_cats)
@@ -133,7 +139,7 @@ if page == "📸 대여 신청 및 현황":
             mods_df = inventory[(inventory['구분'] == 'Body') & (inventory['카테고리'] == sel_cat)]
             sel_mod = st.selectbox("2. 카메라 바디 모델", mods_df['모델명'].unique().tolist() if not mods_df.empty else [], index=None, placeholder="바디 미선택 시 렌즈만 대여 가능")
             
-            # [VS Code 로직] 유연한 렌즈 필터링
+            # 유연한 렌즈 필터링
             lenses_df = inventory[(inventory['구분'] == 'Lens') & (inventory['상태'] == '대여가능')]
             
             if sel_mod:
@@ -141,12 +147,10 @@ if page == "📸 대여 신청 및 현황":
                 b_brand = str(b_info['브랜드']).strip()
                 b_spec = str(b_info['규격']).strip() # FF or Crop
 
-                # 브랜드 호환성 (Canon-Tamron 예외)
                 compat_brands = [b_brand]
                 if b_brand == "Canon": compat_brands.append("Tamron")
                 lenses_df = lenses_df[lenses_df['브랜드'].isin(compat_brands)]
                 
-                # 센서 호환성 (FF바디는 FF렌즈만)
                 if b_spec == "FF":
                     lenses_df = lenses_df[lenses_df['규격'] == "FF"]
                     st.caption("ℹ️ 풀프레임(FF) 바디는 FF 전용 렌즈만 신청 가능합니다.")
@@ -169,16 +173,14 @@ if page == "📸 대여 신청 및 현황":
             meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관 414호)", placeholder="N~M시 / N~M시")
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # [VALIDATION] 신청서 제출 검증 로직
-            submit_ready = False
             if st.button("신청서 제출하기", use_container_width=True):
                 if not name or not contact:
                     st.error("⚠️ 성함과 연락처를 입력해 주세요.")
                 elif sel_mod is None and sel_lens == "선택안함":
                     st.error("⚠️ 바디 또는 렌즈 중 최소 하나 이상의 물품을 선택해야 합니다.")
-                elif sel_mod and gs.check_rental_conflict(sel_mod, start, end):
+                elif sel_mod and db.check_rental_conflict(sel_mod, start, end):
                     st.error("⚠️ 선택하신 바디가 이미 해당 기간에 예약되어 있습니다.")
-                elif sel_lens != "선택안함" and gs.check_rental_conflict(sel_lens, start, end):
+                elif sel_lens != "선택안함" and db.check_rental_conflict(sel_lens, start, end):
                     st.error("⚠️ 선택하신 렌즈가 이미 해당 기간에 예약되어 있습니다.")
                 else:
                     acc_str = ", ".join(accs) if accs else "없음"
@@ -188,10 +190,13 @@ if page == "📸 대여 신청 및 현황":
                         "대면시간": meet, "담당자": "미지정", "상태": "대기", "비고": "", "실제반납일": "",
                         "전체이력저장": f"액세서리: {acc_str} | 신청일: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
                     }
-                    if gs.submit_rental_request(new_req):
+                    if db.submit_rental_request(new_req):
                         st.balloons()
                         st.success("✅ 대여 신청이 성공적으로 완료되었습니다!")
                         st.rerun()
+
+        # 프래그먼트 함수 실행
+        render_rental_form(inventory)
         st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 2. 집행부용 관리 ---
@@ -206,7 +211,7 @@ elif page == "🛠️ 집행부 전용 관리":
     else:
         if st.sidebar.button("로그아웃"): st.session_state.auth = False; st.rerun()
         tabs = st.tabs(["📌 승인 대기", "✅ 진행 중 대여", "📋 전체 이력", "📷 자산 관리", "⚙️ 설정"])
-        rentals = gs.get_rentals()
+        rentals = db.get_rentals()
 
         with tabs[0]: # 승인 대기
             pending = rentals[rentals['상태'] == '대기']
@@ -221,9 +226,9 @@ elif page == "🛠️ 집행부 전용 관리":
                         rem = c2.text_input("상세 비고 (집행부용)", key=f"r_{idx}")
                         b1, b2 = st.columns(2)
                         if b1.button("✅ 승인(확정)", key=f"ok_{idx}", use_container_width=True):
-                            if gs.update_rental_status(idx, "확정", staff, rem): st.rerun()
+                            if db.update_rental_status(row['id'], "확정", staff, rem): st.rerun()
                         if b2.button("❌ 반려(거절)", key=f"no_{idx}", use_container_width=True):
-                            if gs.update_rental_status(idx, "취소", staff, f"[반려] {rem}"): st.rerun()
+                            if db.update_rental_status(row['id'], "취소", staff, f"[반려] {rem}"): st.rerun()
 
         with tabs[1]: # 진행 중 (반납 타임스탬프)
             ongoing = rentals[rentals['상태'] == '확정']
@@ -235,22 +240,22 @@ elif page == "🛠️ 집행부 전용 관리":
                         cc1, cc2, cc3 = st.columns(3)
                         new_rem = cc1.text_input("비고 수정", value=row['비고'], key=f"er_{idx}")
                         if cc2.button("🔄 대기 복원", key=f"rv_{idx}", use_container_width=True):
-                            if gs.update_rental_status(idx, "대기", row['담당자'], new_rem): st.rerun()
+                            if db.update_rental_status(row['id'], "대기", row['담당자'], new_rem): st.rerun()
                         if cc3.button("📦 반납 완료 기록", key=f"dn_{idx}", use_container_width=True):
                             now = datetime.now().strftime("%Y-%m-%d %H:%M")
-                            if gs.update_rental_status(idx, "반납완료", row['담당자'], new_rem, actual_return=now): st.rerun()
+                            if db.update_rental_status(row['id'], "반납완료", row['담당자'], new_rem, actual_return=now): st.rerun()
 
         with tabs[2]: st.dataframe(rentals, use_container_width=True)
         with tabs[3]: # 자산 관리
-            inv = gs.get_inventory(); edit_inv = st.data_editor(inv, num_rows="dynamic", use_container_width=True)
+            inv = db.get_inventory(); edit_inv = st.data_editor(inv, num_rows="dynamic", use_container_width=True)
             if st.button("자산 데이터 저장"):
-                if gs.update_inventory_list(edit_inv): st.success("저장 완료"); st.rerun()
+                if db.update_inventory_list(edit_inv): st.success("저장 완료"); st.rerun()
 
         with tabs[4]:
             st.subheader("⚙️ 비밀번호 관리")
             new_pw = st.text_input("새 비밀번호", value=ADMIN_PASSWORD)
             if st.button("비밀번호 저장"):
-                if gs.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
+                if db.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
 
 # [END OF APP]
 st.markdown("""
