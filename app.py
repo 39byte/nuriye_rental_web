@@ -21,7 +21,7 @@ dark_vars = """
     --bg-color: #121212; --text-color: #E0E0E0; --container-bg: #1E1E1E;
     --input-bg: #252525; --border-color: #333333; --calendar-header-bg: #252525;
     --calendar-day-bg: #1E1E1E; --calendar-empty-bg: #181818;
-    --main-brand-color: #7eb8b4; --button-text: #000000; /* 다크모드 버튼 글자색: 검정색 */
+    --main-brand-color: #5a9490; --button-text: #000000; /* 다크모드 버튼 글자색: 검정색 */
 """
 dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); } .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }"
 
