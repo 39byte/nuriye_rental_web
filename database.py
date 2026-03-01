@@ -7,11 +7,20 @@ from datetime import datetime
 @st.cache_resource
 def get_supabase_client() -> Client:
     try:
-        url = st.secrets["connections"]["supabase"]["SUPABASE_URL"]
-        key = st.secrets["connections"]["supabase"]["SUPABASE_KEY"]
+        # [배포 대응] secrets 구조 유연화 (두 가지 방식 모두 지원)
+        if "connections" in st.secrets and "supabase" in st.secrets["connections"]:
+            url = st.secrets["connections"]["supabase"]["SUPABASE_URL"]
+            key = st.secrets["connections"]["supabase"]["SUPABASE_KEY"]
+        elif "SUPABASE_URL" in st.secrets:
+            url = st.secrets["SUPABASE_URL"]
+            key = st.secrets["SUPABASE_KEY"]
+        else:
+            st.error("❌ Secrets 설정 누락: 'SUPABASE_URL' 또는 'connections.supabase' 섹션이 없습니다.")
+            return None
+            
         return create_client(url, key)
     except Exception as e:
-        st.error(f"❌ Supabase 연결 실패: {e}")
+        st.error(f"❌ Supabase 연결 실패 (구조 확인 필요): {e}")
         return None
 
 @st.cache_data(ttl=300)
