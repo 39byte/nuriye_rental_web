@@ -7,16 +7,42 @@ import gsheets as gs
 # [PWA/Base Settings] 앱 설정
 st.set_page_config(page_title="누리예 카메라 대여 시스템", page_icon="📸", layout="wide", initial_sidebar_state="collapsed")
 
-# [STYLE] CSS 로드 (/* [STYLE] 배경 및 글자색 수정 포인트 */ 명시)
+# [STYLE] CSS 로드 및 테마 전환 로직
+theme_mode = st.sidebar.selectbox("🌓 테마 선택", ["시스템 설정", "라이트", "다크"], index=0)
+
+# 테마별 색상 변수 정의
+light_vars = """
+    --bg-color: #FFFFFF; --text-color: #000000; --container-bg: #FFFFFF;
+    --input-bg: #FFFFFF; --border-color: #cccccc; --calendar-header-bg: #fdfdfd;
+    --calendar-day-bg: #FFFFFF; --calendar-empty-bg: #fdfdfd;
+    --main-brand-color: #B2DFDB; --button-text: #FFFFFF; /* 라이트모드 버튼 글자색: 흰색 */
+"""
+dark_vars = """
+    --bg-color: #121212; --text-color: #E0E0E0; --container-bg: #1E1E1E;
+    --input-bg: #252525; --border-color: #333333; --calendar-header-bg: #252525;
+    --calendar-day-bg: #1E1E1E; --calendar-empty-bg: #181818;
+    --main-brand-color: #5a9490; --button-text: #000000; /* 다크모드 버튼 글자색: 검정색 */
+"""
+dark_extra_css = ".rental-line { border: 1px solid rgba(255,255,255,0.2); filter: saturate(1.2) brightness(1.1); } .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }"
+
+# 선택에 따른 동적 CSS 생성
+if theme_mode == "시스템 설정":
+    dynamic_css = f":root {{ {light_vars} }} @media (prefers-color-scheme: dark) {{ :root {{ {dark_vars} }} {dark_extra_css} }}"
+elif theme_mode == "라이트":
+    dynamic_css = f":root {{ {light_vars} }}"
+else: # 다크
+    dynamic_css = f":root {{ {dark_vars} }} {dark_extra_css}"
+
 try:
     with open('style.css', encoding='utf-8') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        css_content = f.read()
+        st.markdown(f"<style>{css_content}{dynamic_css}</style>", unsafe_allow_html=True)
 except Exception: pass
 
 # 설정 및 데이터 로드
 settings = gs.get_settings()
 ADMIN_PASSWORD = settings.get("admin_password", "nuriye1234")
-STAFF_LIST = ["유재동(회장)", "한지원(부회장)", "김지원(암실부장)", "심종율(총무)", "이서운(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
+STAFF_LIST = ["김지원(암실부장)", "유재동(회장)", "한지원(부회장)", "심종율(총무)", "이서윤(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
 
 # --- 유틸리티: 캘린더 엔진 (VS Code 보정 반영) ---
 def get_calendar_html(rentals, view_year, view_month, is_admin=False):
@@ -33,7 +59,7 @@ def get_calendar_html(rentals, view_year, view_month, is_admin=False):
     
     for week in cal:
         for day in week:
-            if day == 0: html += '<div class="calendar-day" style="background: #fdfdfd;"></div>'
+            if day == 0: html += '<div class="calendar-day empty"></div>'
             else:
                 day_date = date(view_year, view_month, day)
                 is_today = "today" if day_date == today else ""
@@ -71,12 +97,6 @@ if st.sidebar.button("🔄 데이터 새로고침"):
 
 # --- 1. 부원용 신청/현황 ---
 if page == "📸 대여 신청 및 현황":
-    st.markdown("""
-        <div style="background-color: var(--main-brand-color); padding: 5px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05);">
-            <span style="font-size: 0.75rem; font-weight: 500;">⚠️ 원활한 이용을 위해 다크모드 해제를 권장합니다.</span>
-            <span style="font-size: 0.75rem; font-weight: 500;">제작: 45-1기 암실차장 한지원 - Finance&AI융합학부</span>
-        </div>
-    """, unsafe_allow_html=True)
     st.title("📸 누리예 카메라 대여 시스템")
     if 'vy' not in st.session_state: st.session_state.vy = date.today().year
     if 'vm' not in st.session_state: st.session_state.vm = date.today().month
@@ -141,12 +161,12 @@ if page == "📸 대여 신청 및 현황":
             accs = [a for a, c in zip(["SD카드", "리더기", "가방"], [a1.checkbox("SD카드"), a2.checkbox("리더기"), a3.checkbox("가방")]) if c]
 
             st.markdown('<div class="rental-period-box">', unsafe_allow_html=True)
-            name = st.text_input("신청자 성함", placeholder="실명을 입력해 주세요")
+            name = st.text_input("이름", placeholder="이름을 입력해 주세요")
             contact = st.text_input("연락처", placeholder="010-XXXX-XXXX")
             p1, p2 = st.columns(2)
             start = p1.date_input("대여예정일", min_value=date.today())
             end = p2.date_input("반납예정일", min_value=start, max_value=start + timedelta(days=7))
-            meet = st.text_input("대여/반납 가능 시간", placeholder="대여: N~M시 / 반납: N~M시")
+            meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관 414호)", placeholder="N~M시 / N~M시")
             st.markdown('</div>', unsafe_allow_html=True)
 
             # [VALIDATION] 신청서 제출 검증 로직
@@ -231,3 +251,12 @@ elif page == "🛠️ 집행부 전용 관리":
             new_pw = st.text_input("새 비밀번호", value=ADMIN_PASSWORD)
             if st.button("비밀번호 저장"):
                 if gs.update_settings("admin_password", new_pw): st.success("변경 완료"); st.rerun()
+
+# [END OF APP]
+st.markdown("""
+    <hr style='border: 0.5px solid #eee; margin: 30px 0 15px 0;'>
+    <div style='text-align: center; color: var(--text-color); opacity: 0.6; font-size: 0.8rem; line-height: 1.6;'>
+        <b>제작</b> | 45-1기 암실차장 한지원 - Finance&AI융합학부<br>
+        <b>위치</b> | 경기도 용인시 처인구 모현읍 외대로 81, 학생회관 414호
+    </div>
+""", unsafe_allow_html=True)
