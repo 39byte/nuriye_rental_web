@@ -42,7 +42,7 @@ except Exception: pass
 # 설정 및 데이터 로드
 settings = gs.get_settings()
 ADMIN_PASSWORD = settings.get("admin_password", "nuriye1234")
-STAFF_LIST = ["유재동(회장)", "한지원(부회장)", "김지원(암실부장)", "심종율(총무)", "이서운(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
+STAFF_LIST = ["유재동(회장)", "한지원(부회장)", "김지원(암실부장)", "심종율(총무)", "이서윤(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
 
 # --- 유틸리티: 캘린더 엔진 (VS Code 보정 반영) ---
 def get_calendar_html(rentals, view_year, view_month, is_admin=False):
