@@ -51,7 +51,7 @@ def inject_custom_styles(theme_mode):
     except: pass
 
 # 사이드바 테마 토글
-theme_choice = st.sidebar.selectbox("🌓 테마 선택", ["시스템 설정", "라이트", "다크"], index=0)
+theme_choice = st.sidebar.selectbox("테마 선택", ["시스템 설정", "라이트", "다크"], index=0)
 inject_custom_styles(theme_choice)
 
 # ==========================================
@@ -154,7 +154,7 @@ if page == "📸 대여 신청 및 현황":
 
     # [우측] 스마트 대여 신청 양식 구역
     with col_r:
-        st.subheader("📷 스마트 대여 신청")
+        st.subheader("카메라/렌즈 대여 신청")
         
         @st.fragment
         def render_rental_form(inv):
@@ -182,7 +182,7 @@ if page == "📸 대여 신청 및 현황":
                 lenses_df = lenses_df[lenses_df['브랜드'].isin(compat_brands)]
                 if str(b_info['규격']).strip() == "FF":
                     lenses_df = lenses_df[lenses_df['규격'] == "FF"]
-                    st.caption("ℹ️ 풀프레임(FF) 바디는 FF 전용 렌즈만 신청 가능합니다.")
+                    st.caption("풀프레임(FF) 바디는 FF 전용 렌즈만 신청 가능합니다.")
             
             lens_list = [f"[{row['브랜드']}] {row['모델명']}" for _, row in lenses_df.iterrows()]
             sel_lens_disp = st.selectbox("3. 렌즈 모델", ["선택 안 함"] + lens_list)
@@ -252,7 +252,7 @@ elif page == "🛠️ 집행부 전용 관리":
             st.session_state.auth = False
             st.rerun()
             
-        tabs = st.tabs(["📌 승인 대기", "✅ 진행 중 대여", "📋 전체 이력", "📷 자산 관리", "⚙️ 설정"])
+        tabs = st.tabs(["승인 대기", "진행 중 대여", "전체 이력", "장비 목록", "설정"])
         rentals = db.get_rentals()
 
         with tabs[0]: # [승인 대기]
@@ -292,9 +292,9 @@ elif page == "🛠️ 집행부 전용 관리":
                         st.write(f"**비고:** {row['비고']}")
                         cc1, cc2, cc3 = st.columns(3)
                         n_rem = cc1.text_input("비고 수정", value=row['비고'], key=f"er_{idx}")
-                        if cc2.button("🔄 대기 복원", key=f"rv_{idx}", use_container_width=True):
+                        if cc2.button("대기 복원", key=f"rv_{idx}", use_container_width=True):
                             if db.update_rental_status(row['id'], "대기", row['담당자'], n_rem): st.rerun()
-                        if cc3.button("📦 반납 완료", key=f"dn_{idx}", use_container_width=True):
+                        if cc3.button("반납 완료", key=f"dn_{idx}", use_container_width=True):
                             now_ts = datetime.now().strftime("%Y-%m-%d %H:%M")
                             if db.update_rental_status(row['id'], "반납완료", row['담당자'], n_rem, actual_return=now_ts): st.rerun()
 
@@ -308,7 +308,7 @@ elif page == "🛠️ 집행부 전용 관리":
                     st.rerun()
 
         with tabs[4]: # [설정]
-            st.subheader("⚙️ 시스템 설정")
+            st.subheader("시스템 설정")
             new_pwd = st.text_input("새 관리자 비밀번호", value=ADMIN_PASSWORD)
             if st.button("비밀번호 변경 저장"):
                 if db.update_settings("admin_password", new_pwd):
