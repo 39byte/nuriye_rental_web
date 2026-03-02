@@ -137,11 +137,14 @@ if page == "📸 대여 신청 및 현황":
                 return
 
             # 바디 선택 (Category -> Model)
-            b_cats = ["선택 안 함"] + inventory[inventory['구분'] == 'Body']['카테고리'].unique().tolist()
-            sel_cat = st.selectbox("1. 바디 카테고리 선택", b_cats)
+            raw_cats = inventory[inventory['구분'] == 'Body']['카테고리'].unique().tolist()
+            # 이름 정규화: DSLR(크롭) -> DSLR (크롭)
+            clean_cats = [c.replace("DSLR(크롭)", "DSLR (크롭)") for c in raw_cats]
+            b_cats = ["선택 안 함"] + sorted(list(set(clean_cats)))
+            sel_cat = st.selectbox("1. 카메라 카테고리", b_cats)
             
             mods_df = inventory[(inventory['구분'] == 'Body') & (inventory['카테고리'] == sel_cat)]
-            sel_mod = st.selectbox("2. 바디 모델 선택", mods_df['모델명'].unique().tolist() if not mods_df.empty else [], index=None, placeholder="바디 미선택 시 렌즈만 대여 가능")
+            sel_mod = st.selectbox("2. 카메라 모델", mods_df['모델명'].unique().tolist() if not mods_df.empty else [], index=None, placeholder="바디 미선택 시 렌즈만 대여 가능")
             
             # 유연한 렌즈 필터링
             lenses_df = inventory[(inventory['구분'] == 'Lens') & (inventory['상태'] == '대여가능')]
@@ -160,7 +163,7 @@ if page == "📸 대여 신청 및 현황":
                     st.caption("ℹ️ 풀프레임(FF) 바디는 FF 전용 렌즈만 신청 가능합니다.")
             
             lens_list = [f"[{row['브랜드']}] {row['모델명']}" for _, row in lenses_df.iterrows()]
-            sel_lens_display = st.selectbox("3. 렌즈 선택", ["선택 안 함"] + lens_list)
+            sel_lens_display = st.selectbox("3. 렌즈 모델", ["선택 안 함"] + lens_list)
             sel_lens = sel_lens_display.split("] ", 1)[1] if sel_lens_display != "선택 안 함" else "선택 안 함"
 
             # 액세서리
