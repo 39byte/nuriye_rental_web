@@ -144,7 +144,12 @@ if page == "📸 대여 신청 및 현황":
             sel_cat = st.selectbox("1. 카메라 카테고리", b_cats)
             
             mods_df = inventory[(inventory['구분'] == 'Body') & (inventory['카테고리'] == sel_cat)]
-            sel_mod = st.selectbox("2. 카메라 모델", mods_df['모델명'].unique().tolist() if not mods_df.empty else [], index=None, placeholder="바디 미선택 시 렌즈만 대여 가능")
+            # 카메라 모델 목록을 [(브랜드)] 모델명 형식으로 생성
+            mod_display_list = [f"[{row['브랜드']}] {row['모델명']}" for _, row in mods_df.iterrows()]
+            sel_mod_display = st.selectbox("2. 카메라 모델", mod_display_list, index=None, placeholder="바디 미선택 시 렌즈만 대여 가능")
+            
+            # 실제 필터링에 사용할 순수 모델명 추출
+            sel_mod = sel_mod_display.split("] ", 1)[1] if sel_mod_display else None
             
             # 유연한 렌즈 필터링
             lenses_df = inventory[(inventory['구분'] == 'Lens') & (inventory['상태'] == '대여가능')]
