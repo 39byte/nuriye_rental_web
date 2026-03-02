@@ -118,7 +118,7 @@ def get_calendar_html(rentals, view_year, view_month, is_admin=False):
 # ==========================================
 
 page = st.sidebar.selectbox("메뉴 선택", ["📸 대여 신청 및 현황", "🛠️ 집행부 전용 관리"], key="nav")
-if st.sidebar.button("🔄 데이터 새로고침"):
+if st.sidebar.button("데이터 새로고침"):
     st.cache_data.clear()
     st.rerun()
 
@@ -143,7 +143,7 @@ if page == "📸 대여 신청 및 현황":
                 if st.session_state.vm == 1: st.session_state.vm = 12; st.session_state.vy -= 1
                 else: st.session_state.vm -= 1
                 st.rerun()
-        with n2: st.markdown(f"<h3 style='text-align: center;'>🗓️ {st.session_state.vy}년 {st.session_state.vm}월 대여 현황</h3>", unsafe_allow_html=True)
+        with n2: st.markdown(f"<h3 style='text-align: center;'>{st.session_state.vy}년 {st.session_state.vm}월 대여 현황</h3>", unsafe_allow_html=True)
         with n3:
             if st.button("▶", key="n_m"):
                 if st.session_state.vm == 12: st.session_state.vm = 1; st.session_state.vy += 1
