@@ -174,12 +174,18 @@ if page == "📸 대여 신청 및 현황":
             p1, p2 = st.columns(2)
             start = p1.date_input("대여예정일", min_value=date.today())
             end = p2.date_input("반납예정일", min_value=start, max_value=start + timedelta(days=7))
-            meet = st.text_input("대여 및 반납 가능 시간 (장소: 학생회관 414호)", placeholder="N~M시 / N~M시")
+            
+            # 시간 입력란 분리
+            t1, t2 = st.columns(2)
+            rent_time = t1.text_input("대여 가능 시간 (단위: 시)", placeholder="N~M")
+            return_time = t2.text_input("반납 가능 시간 (단위: 시)", placeholder="N~M")
             st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("신청서 제출하기", use_container_width=True):
                 if not name or not contact:
                     st.error("⚠️ 성함과 연락처를 입력해 주세요.")
+                elif not rent_time or not return_time:
+                    st.error("⚠️ 대여 및 반납 가능 시간을 모두 입력해 주세요.")
                 elif sel_mod is None and sel_lens == "선택 안 함":
                     st.error("⚠️ 바디 또는 렌즈 중 최소 하나 이상의 물품을 선택해야 합니다.")
                 elif sel_mod and db.check_rental_conflict(sel_mod, start, end):
@@ -188,10 +194,11 @@ if page == "📸 대여 신청 및 현황":
                     st.error("⚠️ 선택하신 렌즈가 이미 해당 기간에 예약되어 있습니다.")
                 else:
                     acc_str = ", ".join(accs) if accs else "없음"
+                    combined_meet = f"대여: {rent_time} / 반납: {return_time}"
                     new_req = {
                         "신청자": name, "연락처": contact, "장비명": f"[{sel_mod if sel_mod else '바디없음'}] + [{sel_lens}]",
                         "대여시작일": start.strftime("%Y-%m-%d"), "반납예정일": end.strftime("%Y-%m-%d"),
-                        "대면시간": meet, "담당자": "미지정", "상태": "대기", "비고": "", "실제반납일": "",
+                        "대면시간": combined_meet, "담당자": "미지정", "상태": "대기", "비고": "", "실제반납일": "",
                         "전체이력저장": f"액세서리: {acc_str} | 신청일: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
                     }
                     if db.submit_rental_request(new_req):
