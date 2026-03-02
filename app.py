@@ -81,12 +81,11 @@ def get_calendar_html(rentals, view_year, view_month, is_admin=False):
                 
                 for i, r in enumerate(day_rentals[:3]):
                     color = colors[i % len(colors)]
-                    hist = str(r['전체이력저장'])
-                    acc = hist.split("|")[0].replace("액세서리: ", "") if "액세서리: " in hist else "없음"
+                    acc = str(r.get('액세서리', '없음'))
                     
-                    # [DATA_PRIVACY] '비고' 노출 차단 (is_admin=False 일 때)
+                    # [DATA_PRIVACY] '비고' 노출 차단 (is_admin=False 일 때), 추가 요청사항도 제외
                     rem_info = f" | 비고: {r['비고']}" if is_admin and r.get('비고') else ""
-                    tooltip = f"{r['신청자']} / {r['장비명']} / {acc}{rem_info}"
+                    tooltip = f"{r['신청자']} / {r['장비명']} / 액세서리: {acc}{rem_info}"
                     html += f'<div class="rental-line" style="background: {color};" data-tooltip="{tooltip}"></div>'
                 
                 if len(day_rentals) > 3: html += f'<div style="font-size: 0.6rem; font-weight: bold;">+ {len(day_rentals)-3}건</div>'

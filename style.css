@@ -55,9 +55,17 @@ button[data-testid="stSidebarCollapseButton"] svg {
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     border: 1px solid var(--border-color);
+    overflow: visible !important; /* 컨테이너 밖으로 툴팁 허용 */
+    position: relative;
+    z-index: 5; /* 신청서 영역보다 높게 설정할 수 있는 기반 */
 }
 
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--border-color); }
+.calendar-grid { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    border: 1px solid var(--border-color);
+    overflow: visible !important; /* 그리드 밖으로 툴팁 허용 */
+}
 
 .calendar-header {
     font-weight: 600;
@@ -76,6 +84,12 @@ button[data-testid="stSidebarCollapseButton"] svg {
     background: var(--calendar-day-bg);
     border: 0.5px solid var(--border-color);
     color: var(--text-color);
+    overflow: visible !important; /* 날짜 칸 밖으로 툴팁 허용 */
+    z-index: 1;
+}
+
+.calendar-day:hover {
+    z-index: 100 !important; /* 호버 시 최상위로 올려 다음 날짜 칸 가림 방지 */
 }
 
 .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }
@@ -87,6 +101,25 @@ button[data-testid="stSidebarCollapseButton"] svg {
     margin-top: 4px;
     cursor: pointer;
     border: 1px solid rgba(255,255,255,0.1);
+    position: relative; /* 툴팁 위치 기준점 */
+}
+
+/* 툴팁 스타일 (마우스 호버 시 표시) */
+.rental-line:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%; 
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95); 
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 9999 !important; 
+    font-size: 0.75rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    pointer-events: none;
 }
 
 /* Form & Layout Containers */
@@ -115,6 +148,15 @@ div[data-baseweb="input"], div[data-baseweb="select"] > div, .stDateInput div {
 }
 
 input, select, textarea, div[role="button"] span { color: var(--text-color) !important; }
+
+/* 컬럼 레이어 순위 조정 (캘린더 툴팁 가려짐 방지) */
+[data-testid="column"]:nth-child(1) {
+    z-index: 10 !important; /* 왼쪽 캘린더 컬럼을 상위로 */
+}
+
+[data-testid="column"]:nth-child(2) {
+    z-index: 1 !important;  /* 오른쪽 신청서 컬럼을 하위로 */
+}
 
 /* 체크박스 라벨 줄바꿈 허용 (긴 액세서리 명칭 대응) */
 .stCheckbox label div[data-testid="stMarkdownContainer"] p {
