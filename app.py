@@ -166,7 +166,7 @@ if page == "📸 대여 신청 및 현황":
             # 액세서리
             st.write("엑세서리 추가 (선택)")
             acc_cols = st.columns(4)
-            acc_items = ["카메라 충전기", "SD카드 리더기", "가방", "삼각대"]
+            acc_items = ["카메라 충전기", "SD카드 리더기", "카메라 가방", "삼각대"]
             acc_checks = [acc_cols[i].checkbox(item) for i, item in enumerate(acc_items)]
             accs = [item for item, checked in zip(acc_items, acc_checks) if checked]
 

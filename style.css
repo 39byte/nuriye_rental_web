@@ -115,3 +115,10 @@ div[data-baseweb="input"], div[data-baseweb="select"] > div, .stDateInput div {
 }
 
 input, select, textarea, div[role="button"] span { color: var(--text-color) !important; }
+
+/* 체크박스 라벨 줄바꿈 허용 (긴 액세서리 명칭 대응) */
+.stCheckbox label div[data-testid="stMarkdownContainer"] p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    line-height: 1.2 !important;
+}
