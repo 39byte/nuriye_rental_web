@@ -53,7 +53,7 @@ def get_rentals():
         
         if not response.data:
             st.info("ℹ️ 대여 이력이 없거나 접근 권한(RLS)이 없습니다.")
-            return pd.DataFrame(columns=['id', '신청자', '연락처', '장비명', '대여시작일', '반납예정일', '대면시간', '담당자', '상태', '비고', '실제반납일', '전체이력저장'])
+            return pd.DataFrame(columns=['id', '신청자', '연락처', '장비명', '대여시작일', '반납예정일', '대면시간', '담당자', '상태', '비고', '실제반납일', '액세서리', '추가요청', '신청일시'])
             
         df = pd.DataFrame(response.data)
         return df

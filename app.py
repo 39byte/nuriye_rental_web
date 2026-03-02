@@ -164,9 +164,14 @@ if page == "📸 대여 신청 및 현황":
             sel_lens = sel_lens_display.split("] ", 1)[1] if sel_lens_display != "선택 안 함" else "선택 안 함"
 
             # 액세서리
-            st.write("4. 액세서리 추가")
-            a1, a2, a3 = st.columns(3)
-            accs = [a for a, c in zip(["SD카드", "리더기", "가방"], [a1.checkbox("SD카드"), a2.checkbox("리더기"), a3.checkbox("가방")]) if c]
+            st.write("엑세서리 추가 (선택)")
+            acc_cols = st.columns(4)
+            acc_items = ["카메라 충전기", "SD카드 리더기", "가방", "삼각대"]
+            acc_checks = [acc_cols[i].checkbox(item) for i, item in enumerate(acc_items)]
+            accs = [item for item, checked in zip(acc_items, acc_checks) if checked]
+
+            # 추가 요청사항 입력칸 추가
+            extra_req = st.text_input("추가 요청사항 (선택)", placeholder="추가 요청사항을 입력해주세요")
 
             st.markdown('<div class="rental-period-box">', unsafe_allow_html=True)
             name = st.text_input("이름", placeholder="이름을 입력해 주세요")
@@ -194,12 +199,15 @@ if page == "📸 대여 신청 및 현황":
                     st.error("⚠️ 선택하신 렌즈가 이미 해당 기간에 예약되어 있습니다.")
                 else:
                     acc_str = ", ".join(accs) if accs else "없음"
+                    req_msg = extra_req if extra_req.strip() else "없음"
                     combined_meet = f"대여: {rent_time} / 반납: {return_time}"
                     new_req = {
                         "신청자": name, "연락처": contact, "장비명": f"[{sel_mod if sel_mod else '바디없음'}] + [{sel_lens}]",
                         "대여시작일": start.strftime("%Y-%m-%d"), "반납예정일": end.strftime("%Y-%m-%d"),
                         "대면시간": combined_meet, "담당자": "미지정", "상태": "대기", "비고": "", "실제반납일": "",
-                        "전체이력저장": f"액세서리: {acc_str} | 신청일: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                        "액세서리": acc_str,
+                        "추가요청": req_msg,
+                        "신청일시": datetime.now().strftime('%Y-%m-%d %H:%M')
                     }
                     if db.submit_rental_request(new_req):
                         st.balloons()
@@ -228,9 +236,10 @@ elif page == "🛠️ 집행부 전용 관리":
             if pending.empty: st.info("새로운 신청 없음")
             else:
                 for idx, row in pending.iterrows():
-                    hist = str(row['전체이력저장']); acc_info = hist.split("|")[0].replace("액세서리: ", "") if "액세서리: " in hist else "없음"
                     with st.expander(f"신청: {row['신청자']} - {row['장비명']}"):
-                        st.write(f"**기간:** {row['대여시작일']} ~ {row['반납예정일']} | **액세서리:** {acc_info}")
+                        st.write(f"**기간:** {row['대여시작일']} ~ {row['반납예정일']}")
+                        st.write(f"**액세서리:** {row['액세서리']} | **요청사항:** {row['추가요청']}")
+                        st.write(f"**신청일시:** {row['신청일시']}")
                         c1, c2 = st.columns(2)
                         staff = c1.selectbox("담당자 지정", STAFF_LIST, key=f"s_{idx}")
                         rem = c2.text_input("상세 비고 (집행부용)", key=f"r_{idx}")
