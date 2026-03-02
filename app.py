@@ -47,7 +47,7 @@ except Exception: pass
 # 설정 및 데이터 로드 (db 모듈 활용)
 settings = db.get_settings()
 ADMIN_PASSWORD = settings.get("admin_password", "1111")
-STAFF_LIST = ["김지원(암실부장)", "유재동(회장)", "한지원(부회장)", "심종율(총무)", "이서윤(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
+STAFF_LIST = ["[암실부장] 김지원", "[회장] 유재동", "[부회장] 한지원", "[총무] 심종율", "[홍보부장] 이서윤", "[홍보차장] 김기연", "[홍보차장] 김예은"]
 
 # --- 유틸리티: 캘린더 엔진 (VS Code 보정 반영) ---
 def get_calendar_html(rentals, view_year, view_month, is_admin=False):
@@ -260,9 +260,27 @@ elif page == "🛠️ 집행부 전용 관리":
             ongoing = rentals[rentals['상태'] == '확정']
             if ongoing.empty: st.info("대여 중인 장비 없음")
             else:
+                today = date.today()
                 for idx, row in ongoing.iterrows():
-                    with st.expander(f"대여 중: {row['신청자']} (예정: {row['반납예정일']})"):
-                        st.write(f"**장비:** {row['장비명']} | **비고:** {row['비고']}")
+                    # D-Day 계산
+                    target_date = pd.to_datetime(row['반납예정일']).date()
+                    delta = (target_date - today).days
+                    
+                    if delta > 0: d_day_str = f"D-{delta}"
+                    elif delta == 0: d_day_str = "D-day"
+                    else: d_day_str = f"D+{abs(delta)}"
+                    
+                    # D-1, D-day, 연체(D+) 시 빨간색 강조
+                    d_day_color = "#FF5252" if delta <= 1 else "var(--text-color)"
+                    
+                    # 제목 구성: 이름 | 장비명 | 기간 (D-Day)
+                    expander_title = f"{row['신청자']} | {row['장비명']} | {row['대여시작일']} ~ {row['반납예정일']} ({d_day_str})"
+                    
+                    with st.expander(expander_title):
+                        st.write(f"**상세 장비:** {row['장비명']}")
+                        st.write(f"**액세서리:** {row['액세서리']}")
+                        st.write(f"**비고:** {row['비고']}")
+                        
                         cc1, cc2, cc3 = st.columns(3)
                         new_rem = cc1.text_input("비고 수정", value=row['비고'], key=f"er_{idx}")
                         if cc2.button("🔄 대기 복원", key=f"rv_{idx}", use_container_width=True):
