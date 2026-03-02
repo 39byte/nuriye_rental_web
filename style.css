@@ -1,9 +1,14 @@
-/* [THEME] 동적 색상 제어를 위한 기반 스타일 */
+/* ==========================================
+   [THEME] 전역 변수 및 레이아웃 설정
+   ========================================== */
 :root {
     --main-brand-glow: rgba(178, 223, 219, 0.3);
+    --std-border-radius: 6px;
+    --card-border-radius: 12px;
+    --transition-speed: 0.2s;
 }
 
-/* Global Layout & Settings */
+/* 전체 배경 및 사이드바 */
 [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
     background-color: var(--bg-color) !important;
     transition: background-color 0.3s ease;
@@ -11,60 +16,100 @@
 
 [data-testid="stSidebar"] { border-right: 1px solid var(--border-color); }
 
+/* 최상단 메인 컬러 바 */
 [data-testid="stHeader"] {
     background-color: var(--main-brand-color) !important;
     height: 3.5rem !important;
 }
 
+/* 본문 레이아웃 (너비 제한 및 중앙 정렬) */
 .main .block-container {
     padding-top: 1.5rem !important;
-    max-width: 100% !important;
+    max-width: 950px !important;
+    margin: 0 auto !important;
 }
 
-/* Typography */
+/* ==========================================
+   [TYPOGRAPHY] 텍스트 및 제목 스타일
+   ========================================== */
 h1, h2, h3, .stMarkdown p, .stText, [data-testid="stMarkdownContainer"] p, label {
     color: var(--text-color) !important;
     font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
     transition: color 0.3s ease;
 }
 
-/* Buttons Style */
+h1 { font-size: 2.6rem !important; }
+h2 { font-size: 2.1rem !important; }
+h3 { font-size: 1.7rem !important; }
+
+/* ==========================================
+   [COMPONENTS] 버튼 및 입력창
+   ========================================== */
+
+/* 공통 버튼 스타일 */
 .stButton>button, div[data-testid="stForm"] button, button[kind="primary"], [data-testid="stSidebar"] button {
     background-color: var(--main-brand-color) !important;
     color: var(--button-text) !important;
-    border-radius: 6px !important;
+    border-radius: var(--std-border-radius) !important;
     border: 1px solid rgba(0,0,0,0.1) !important;
-    padding: 0.6rem 1.2rem !important;
+    padding: 0.7rem 1.4rem !important;
+    font-size: 1.1rem !important;
     font-weight: bold !important;
-    transition: all 0.2s ease;
+    transition: all var(--transition-speed) ease;
 }
 
 .stButton>button p, .stButton>button span { color: var(--button-text) !important; }
 .stButton>button:hover { filter: brightness(0.95); }
 
-/* Sidebar Collapse Icon */
+/* 캘린더 전용 작은 화살표 버튼 (크기 유지) */
+.stButton > button[key*="p_m"], .stButton > button[key*="n_m"] {
+    padding: 0.2rem 0.6rem !important;
+    font-size: 1rem !important;
+    min-height: unset !important;
+}
+
+/* 사이드바 아이콘 보정 */
 button[data-testid="stSidebarCollapseButton"] svg {
     fill: var(--text-color) !important;
     color: var(--text-color) !important;
 }
 
-/* Calendar Engine */
+/* 입력창 및 선택창 가시성 */
+div[data-baseweb="input"], div[data-baseweb="select"] > div, .stDateInput div {
+    background-color: var(--input-bg) !important;
+    border-radius: var(--std-border-radius) !important;
+}
+
+input, select, textarea, div[role="button"] span { 
+    color: var(--text-color) !important; 
+}
+
+/* 체크박스 라벨 줄바꿈 허용 */
+.stCheckbox label div[data-testid="stMarkdownContainer"] p {
+    white-space: normal !important;
+    word-break: keep-all !important;
+    line-height: 1.2 !important;
+}
+
+/* ==========================================
+   [CALENDAR] 대여 현황 캘린더 엔진
+   ========================================== */
 .calendar-container {
     background: var(--container-bg);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: var(--card-border-radius);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     border: 1px solid var(--border-color);
-    overflow: visible !important; /* 컨테이너 밖으로 툴팁 허용 */
+    overflow: visible !important;
     position: relative;
-    z-index: 5; /* 신청서 영역보다 높게 설정할 수 있는 기반 */
+    z-index: 10;
 }
 
 .calendar-grid { 
     display: grid; 
     grid-template-columns: repeat(7, 1fr); 
     border: 1px solid var(--border-color);
-    overflow: visible !important; /* 그리드 밖으로 툴팁 허용 */
+    overflow: visible !important;
 }
 
 .calendar-header {
@@ -84,27 +129,24 @@ button[data-testid="stSidebarCollapseButton"] svg {
     background: var(--calendar-day-bg);
     border: 0.5px solid var(--border-color);
     color: var(--text-color);
-    overflow: visible !important; /* 날짜 칸 밖으로 툴팁 허용 */
+    overflow: visible !important;
     z-index: 1;
 }
 
-.calendar-day:hover {
-    z-index: 100 !important; /* 호버 시 최상위로 올려 다음 날짜 칸 가림 방지 */
-}
-
+.calendar-day:hover { z-index: 100 !important; } /* 다음 칸 가려짐 방지 */
 .calendar-day.empty { background-color: var(--calendar-empty-bg) !important; }
 .calendar-day.today { background-color: var(--main-brand-color) !important; color: #000000 !important; font-weight: bold; }
 
+/* 대여 현황 컬러 라인 및 툴팁 */
 .rental-line {
     height: 8px;
     border-radius: 4px;
     margin-top: 4px;
     cursor: pointer;
     border: 1px solid rgba(255,255,255,0.1);
-    position: relative; /* 툴팁 위치 기준점 */
+    position: relative;
 }
 
-/* 툴팁 스타일 (마우스 호버 시 표시) */
 .rental-line:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -114,7 +156,7 @@ button[data-testid="stSidebarCollapseButton"] svg {
     background: rgba(0, 0, 0, 0.95); 
     color: white;
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: var(--std-border-radius);
     white-space: nowrap;
     z-index: 9999 !important; 
     font-size: 0.75rem;
@@ -122,45 +164,17 @@ button[data-testid="stSidebarCollapseButton"] svg {
     pointer-events: none;
 }
 
-/* Form & Layout Containers */
-.form-container, .rental-period-box { border-radius: 12px; }
-
-.form-container {
-    background: var(--container-bg);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.form-container h2, .form-container h3 { margin-top: 0 !important; padding-top: 0 !important; }
-
+/* ==========================================
+   [LAYOUT] 섹션별 컨테이너
+   ========================================== */
 .rental-period-box {
     background: var(--bg-color);
     padding: 25px;
-    box-shadow: none;
+    border-radius: var(--card-border-radius);
+    border: none !important;
+    box-shadow: none !important;
 }
 
-/* Input Fields */
-div[data-baseweb="input"], div[data-baseweb="select"] > div, .stDateInput div {
-    background-color: var(--input-bg) !important;
-    /* border: 1px solid var(--border-color) !important; */
-    border-radius: 6px !important;
-}
-
-input, select, textarea, div[role="button"] span { color: var(--text-color) !important; }
-
-/* 컬럼 레이어 순위 조정 (캘린더 툴팁 가려짐 방지) */
-[data-testid="column"]:nth-child(1) {
-    z-index: 10 !important; /* 왼쪽 캘린더 컬럼을 상위로 */
-}
-
-[data-testid="column"]:nth-child(2) {
-    z-index: 1 !important;  /* 오른쪽 신청서 컬럼을 하위로 */
-}
-
-/* 체크박스 라벨 줄바꿈 허용 (긴 액세서리 명칭 대응) */
-.stCheckbox label div[data-testid="stMarkdownContainer"] p {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    line-height: 1.2 !important;
-}
+/* 컬럼 레이어 순위 (캘린더 툴팁 우선순위) */
+[data-testid="column"]:nth-child(1) { z-index: 10 !important; }
+[data-testid="column"]:nth-child(2) { z-index: 1 !important; }

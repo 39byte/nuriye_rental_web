@@ -3,11 +3,18 @@ import streamlit as st
 from supabase import create_client, Client
 from datetime import datetime
 
-# [CONFIG] Supabase 연결 설정
+# ==========================================
+# [DB CONFIG] Supabase 연결 및 설정
+# ==========================================
+
 @st.cache_resource
 def get_supabase_client() -> Client:
+    """
+    Supabase 클라이언트를 생성하고 캐싱합니다.
+    Streamlit secrets에서 정보를 가져오며, 구조적 예외 처리를 포함합니다.
+    """
     try:
-        # [배포 대응] secrets 구조 유연화 (두 가지 방식 모두 지원)
+        # secrets 구조 유연화 (배포 및 로컬 환경 모두 대응)
         if "connections" in st.secrets and "supabase" in st.secrets["connections"]:
             url = st.secrets["connections"]["supabase"]["SUPABASE_URL"]
             key = st.secrets["connections"]["supabase"]["SUPABASE_KEY"]
@@ -15,140 +22,168 @@ def get_supabase_client() -> Client:
             url = st.secrets["SUPABASE_URL"]
             key = st.secrets["SUPABASE_KEY"]
         else:
-            st.error("❌ Secrets 설정 누락: 'SUPABASE_URL' 또는 'connections.supabase' 섹션이 없습니다.")
+            st.error("❌ Secrets 설정 누락: 'SUPABASE_URL' 정보가 없습니다.")
             return None
             
         return create_client(url, key)
     except Exception as e:
-        st.error(f"❌ Supabase 연결 실패 (구조 확인 필요): {e}")
+        st.error(f"❌ Supabase 연결 실패: {e}")
         return None
 
+# ==========================================
+# [READ] 데이터 조회 함수 (캐싱 적용)
+# ==========================================
+
 @st.cache_data(ttl=300)
-def get_inventory():
-    """장비 목록 로드 (Inventory 테이블)"""
+def get_inventory() -> pd.DataFrame:
+    """
+    전체 장비 목록을 조회합니다. (5분 캐싱)
+    """
     try:
         supabase = get_supabase_client()
-        response = supabase.table("Inventory").select("*").execute()
+        if not supabase: return pd.DataFrame()
         
-        # 상세 진단 로그
+        response = supabase.table("Inventory").select("*").execute()
         if not response.data:
-            st.warning("⚠️ Supabase 'Inventory' 테이블에 데이터가 비어있거나 정책(RLS)에 의해 차단되었습니다.")
             return pd.DataFrame()
             
         df = pd.DataFrame(response.data)
-        if not df.empty:
-            df.columns = [c.strip() for c in df.columns]
+        # 컬럼명 공백 정리
+        df.columns = [c.strip() for c in df.columns]
         return df
     except Exception as e:
-        st.error(f"❌ 장비 목록 로드 중 치명적 오류: {e}")
+        st.error(f"❌ 장비 목록 로드 오류: {e}")
         return pd.DataFrame()
 
 @st.cache_data(ttl=300)
-def get_rentals():
-    """대여 이력 로드 (Rentals 테이블)"""
+def get_rentals() -> pd.DataFrame:
+    """
+    전체 대여 이력을 최신순으로 조회합니다. (5분 캐싱)
+    """
     try:
         supabase = get_supabase_client()
-        # id 내림차순 정렬 (최신순)
+        if not supabase: return pd.DataFrame()
+        
         response = supabase.table("Rentals").select("*").order("id", desc=True).execute()
         
-        if not response.data:
-            st.info("ℹ️ 대여 이력이 없거나 접근 권한(RLS)이 없습니다.")
-            return pd.DataFrame(columns=['id', '신청자', '연락처', '장비명', '대여시작일', '반납예정일', '대면시간', '담당자', '상태', '비고', '실제반납일', '액세서리', '추가요청', '신청일시'])
-            
-        df = pd.DataFrame(response.data)
-        return df
-    except Exception as e:
-        st.error(f"❌ 대여 이력 로드 중 치명적 오류: {e}")
-        return pd.DataFrame(columns=['id', '신청자', '연락처', '장비명', '대여시작일', '반납예정일', '대면시간', '담당자', '상태', '비고', '실제반납일', '전체이력저장'])
-
-def get_settings():
-    """설정 정보 로드 (Settings 테이블)"""
-    try:
-        supabase = get_supabase_client()
-        response = supabase.table("Settings").select("*").execute()
-        data = response.data
-        default = {"admin_password": "1111"}
-        if not data: return default
+        # 필수 컬럼 정의 (데이터가 없을 때를 대비)
+        cols = ['id', '신청자', '연락처', '장비명', '대여시작일', '반납예정일', '대면시간', '담당자', '상태', '비고', '실제반납일', '액세서리', '추가요청', '신청일시']
         
-        # {key: value} 딕셔너리로 변환
-        settings_dict = {item['key']: item['value'] for item in data}
-        return settings_dict
-    except:
-        return {"admin_password": "1111"}
+        if not response.data:
+            return pd.DataFrame(columns=cols)
+            
+        return pd.DataFrame(response.data)
+    except Exception as e:
+        st.error(f"❌ 대여 이력 로드 오류: {e}")
+        return pd.DataFrame()
 
-def update_settings(key, value):
-    """설정 정보 업데이트"""
+def get_settings() -> dict:
+    """
+    시스템 설정 정보를 딕셔너리 형태로 반환합니다.
+    """
+    default = {"admin_password": "1111"}
     try:
         supabase = get_supabase_client()
-        supabase.table("Settings").update({"value": value}).eq("key", key).execute()
-        st.cache_data.clear()
-        return True
+        if not supabase: return default
+        
+        response = supabase.table("Settings").select("key, value").execute()
+        if not response.data: return default
+        
+        return {item['key']: item['value'] for item in response.data}
     except:
-        return False
+        return default
 
-def submit_rental_request(data):
-    """신청서 데이터 전송 (INSERT)"""
+# ==========================================
+# [WRITE] 데이터 변경 함수 (캐시 초기화 포함)
+# ==========================================
+
+def submit_rental_request(data: dict) -> bool:
+    """
+    신청서 데이터를 삽입합니다. 성공 시 True를 반환합니다.
+    """
     try:
         supabase = get_supabase_client()
-        # 딕셔너리 데이터를 그대로 Insert
+        if not supabase: return False
+        
         supabase.table("Rentals").insert(data).execute()
-        st.cache_data.clear()
+        st.cache_data.clear() # 새 데이터 반영을 위한 캐시 초기화
         return True
     except Exception as e:
         st.error(f"❌ 신청서 제출 실패: {e}")
         return False
 
-def update_rental_status(row_id, status, staff_name, remarks=None, actual_return=None):
-    """대여 상태 업데이트 (UPDATE)"""
+def update_rental_status(row_id: int, status: str, staff_name: str, remarks: str = None, actual_return: str = None) -> bool:
+    """
+    대여 건의 상태와 담당자 정보를 업데이트합니다.
+    """
     try:
         supabase = get_supabase_client()
-        update_data = {
-            "상태": status,
-            "담당자": staff_name
-        }
-        if remarks is not None: update_data["비고"] = remarks
-        if actual_return is not None: update_data["실제반납일"] = actual_return
+        if not supabase: return False
         
-        # 시트 인덱스 대신 실제 id(PK)를 사용하여 업데이트
-        supabase.table("Rentals").update(update_data).eq("id", row_id).execute()
+        update_payload = {"상태": status, "담당자": staff_name}
+        if remarks is not None: update_payload["비고"] = remarks
+        if actual_return is not None: update_payload["실제반납일"] = actual_return
+        
+        supabase.table("Rentals").update(update_payload).eq("id", row_id).execute()
         st.cache_data.clear()
         return True
     except Exception as e:
         st.error(f"❌ 상태 업데이트 실패: {e}")
         return False
 
-def check_rental_conflict(equipment_name, start_date, end_date):
-    """예약 중복 체크 (DB 쿼리 활용)"""
+def update_settings(key: str, value: str) -> bool:
+    """
+    특정 설정 값을 업데이트합니다.
+    """
     try:
         supabase = get_supabase_client()
-        # 해당 장비를 포함하고 활성화된 예약만 필터링
-        response = supabase.table("Rentals") \
-            .select("*") \
+        if not supabase: return False
+        
+        supabase.table("Settings").update({"value": value}).eq("key", key).execute()
+        st.cache_data.clear()
+        return True
+    except:
+        return False
+
+def check_rental_conflict(equipment_name: str, start_date, end_date) -> bool:
+    """
+    지정된 기간 내 특정 장비의 예약 중복 여부를 확인합니다.
+    """
+    try:
+        supabase = get_supabase_client()
+        if not supabase: return False
+        
+        # 최적화: 필요한 조건으로 DB에서 미리 필터링
+        res = supabase.table("Rentals") \
+            .select("대여시작일, 반납예정일") \
             .ilike("장비명", f"%{equipment_name}%") \
-            .in_("상태", ["대기", "확정", "대여중"]) \
+            .in_("상태", ["확정", "대여중", "대기"]) \
             .execute()
         
-        active_rentals = pd.DataFrame(response.data)
-        if active_rentals.empty: return False
+        if not res.data: return False
         
-        for _, row in active_rentals.iterrows():
-            try:
-                s = pd.to_datetime(str(row['대여시작일'])).date()
-                e = pd.to_datetime(str(row['반납예정일'])).date()
-                if (start_date <= e) and (end_date >= s): return True
-            except: continue
+        for row in res.data:
+            s = pd.to_datetime(row['대여시작일']).date()
+            e = pd.to_datetime(row['반납예정일']).date()
+            if (start_date <= e) and (end_date >= s):
+                return True
         return False
     except:
         return False
 
-def update_inventory_list(df):
-    """재고 목록 전체 업데이트 (Batch Upsert)"""
+def update_inventory_list(df: pd.DataFrame) -> bool:
+    """
+    자산 목록을 일괄 업데이트(Upsert)합니다.
+    """
     try:
         supabase = get_supabase_client()
-        # 데이터프레임을 리스트 형식으로 변환하여 한 번에 전송
-        data_list = df.replace({pd.NA: None, float('nan'): None}).to_dict(orient='records')
-        if data_list:
-            supabase.table("Inventory").upsert(data_list).execute()
+        if not supabase: return False
+        
+        # 데이터 정제 (NaN -> None 처리로 DB 오류 방지)
+        clean_data = df.replace({pd.NA: None, float('nan'): None}).to_dict(orient='records')
+        if clean_data:
+            supabase.table("Inventory").upsert(clean_data).execute()
+        
         st.cache_data.clear()
         return True
     except Exception as e:
