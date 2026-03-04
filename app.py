@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 def inject_custom_styles(theme_mode):
-    """테마 선택에 따라 동적 CSS를 주입하는 함수"""
+    # """테마 선택에 따라 동적 CSS를 주입하는 함수"""
     THEMES = {
         "light": {
             "bg": "#FFFFFF", "text": "#000000", "cont": "#FFFFFF", "input": "#FFFFFF", "brd": "#cccccc",
@@ -61,7 +61,7 @@ inject_custom_styles(theme_choice)
 # 설정 데이터 로드
 settings = db.get_settings()
 ADMIN_PASSWORD = settings.get("admin_password", "1111")
-STAFF_LIST = ["김지원(암실부장)", "유재동(회장)", "한지원(부회장)", "심종율(총무)", "이서운(홍보부장)", "김기연(홍보차장)", "김예은(홍보차장)"]
+STAFF_LIST = ["[암실부장] 김지원", "[회장] 유재동", "[부회장] 한지원", "[총무] 심종율", "[홍보부장] 이서윤", "[홍보차장] 김예은", "[홍보차장] 김기연"]
 
 def get_calendar_html(rentals, view_year, view_month, is_admin=False):
     """대여 현황 캘린더 HTML 생성 (성능 최적화 버전)"""
